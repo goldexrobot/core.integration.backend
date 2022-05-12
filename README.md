@@ -52,8 +52,9 @@ Callback models are described in [Swagger](https://goldexrobot.github.io/core.in
 | Callback | Description | Model | Inside | Expected response |
 | --- | --- | --- | --- | --- |
 | Started | New item evaluation is created | `EvalStarted` | Evaluation ID | Status 200 |
+| Photo | New photo of the item is available | `EvalPhoto` | Evaluation ID, photo ID and origin | Status 200 |
 | Cancelled | Item evaluation is cancelled or failed | `EvalCancelled` | Evaluation ID, reason | Status 200 |
-| Finished | Item evaluation is successfully finished | `EvalFinished` | Detailed evaluation data, photo file IDs | Status 200 |
+| Finished | Item evaluation is successfully finished | `EvalFinished` | Estimated fineness, weight, etc. | Status 200 |
 
 ### Storage callbacks
 
