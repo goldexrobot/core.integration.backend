@@ -65,15 +65,16 @@ Callback models are described in [Swagger](https://goldexrobot.github.io/core.in
 | Pre-occupation | Optional, called before occupation to give more flexibility | `StorageCellEvent` | Cell address and *domain* | Status 200 and `{"allowed":true}` |
 | Pre-release | Optional, called before release to give more flexibility | `StorageCellEvent` | Cell address and *domain* | Status 200 and `{"allowed":true}` |
 
-*Domain* is an origin of the cell operation:
-| Domain | Whats |
-| --- | --- |
-| buyout | Cell is occupied during buyout flow |
-| shop | Cell is freed during item purchasing / shop flow |
-| pawnshop | Cell is occupied or freed during pawnshop flow |
-| collection | Cell is occupied/freed by staff members (on-bot collection dashboard) |
-| dashboard | Cell is occupied/freed by staff members (on-bot system dashboard) |
-| other | For custom UI flows |
+*Domain* is an origin of the cell operation, or in other words a *business flow* in terms of UI. Here how domains and cell events are correlate:
+| Domain/flow | Cell occupation | Cell release | Comment |
+| --- | --- | --- | --- |
+| buyout | YES | | Buyout business flow: a cell can only be **occupied** |
+| shop | | YES | Shop flow: a cell can only be **released** |
+| pawnshop | YES | | Pawhshop flow: a cell can be both **occupied/released** |
+| collection/dashboard | YES | YES | Not a UI flow, but a storage management (using internal bot dashboard): a cell can be both **occupied/released** |
+
+Note about a shop flow. First of all, an item should be loaded into the storage of the bot. Then it could appear in the UI as a product we're selling. \
+So the storage is loaded through the internal dashboard of the bot, therefore in this case the cell is loaded under the collection/dashboard domain.
 
 ### UI methods
 
