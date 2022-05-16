@@ -70,7 +70,7 @@ Callback models are described in [Swagger](https://goldexrobot.github.io/core.in
 | --- | --- | --- | --- |
 | buyout | YES | | Buyout business flow: a cell can only be **occupied** |
 | shop | | YES | Shop flow: a cell can only be **released** |
-| pawnshop | YES | | Pawhshop flow: a cell can be both **occupied/released** |
+| pawnshop | YES | YES | Pawhshop flow: a cell can be both **occupied/released** |
 | collection/dashboard | YES | YES | Not a UI flow, but a storage management (using internal bot dashboard): a cell can be both **occupied/released** |
 
 Note about a shop flow. First of all, an item should be loaded into the storage of the bot. Then it could appear in the UI as a product we're selling. \
