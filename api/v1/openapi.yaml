@@ -56,7 +56,7 @@ paths:
       operationId: sendBotCommand
       responses:
         '200':
-          $ref: '#/components/responses/Success'
+          $ref: '#/components/responses/Empty'
         'default':
           $ref: '#/components/responses/Error'
       requestBody:
@@ -97,6 +97,9 @@ paths:
       responses:
         '200':
           description: Image bytes with a corresponding `Content-Type` header
+          content:
+            image/jpeg:
+              example: 'bytes'
         'default':
           $ref: '#/components/responses/Error'
       tags:
@@ -133,19 +136,8 @@ paths:
         - price
 components:
   schemas:
-    APIResponse:
-      description: General API response
-      type: object
-      properties:
-        'code':
-          type: integer
-          format: int32
-          description: 0 for success, other for error
-          example: 1
-        'message':
-          type: string
-          example: Message or error description
     BotInfo:
+      title: BotInfo
       description: Bot info data
       type: object
       properties:
@@ -159,11 +151,13 @@ components:
           description: Serial number
           example: CB-616
     BotInfoList:
+      title: BotInfoList
       description: List of bot infos
       type: array
       items:
         $ref: '#/components/schemas/BotInfo'
     BotCommand:
+      title: BotCommand
       description: Command to send to the bot
       type: object
       properties:
@@ -178,6 +172,7 @@ components:
             - power_off
           example: mode_operational
     BotStorageState:
+      title: BotStorageState
       description: Storage state description
       type: object
       properties:
@@ -185,6 +180,7 @@ components:
           description: Occupied cells
           type: array
           items:
+            title: CellState
             description: Cell state
             type: object
             properties:
@@ -207,9 +203,11 @@ components:
           format: int32
           example: -1
     MetalPrice:
+      title: MetalPrice
       description: Metal price in fiat currencies
       type: array
       items:
+        title: MetalPriceCurrency
         description: Price in currency
         type: object
         properties:
@@ -229,8 +227,9 @@ components:
       required: true
       schema:
         type: integer
-        format: uint64
+        format: int64 # golang generator does not provide uint64 parser
         example: 42
+        minimum: 1
     PhotoID:
       name: 'photoID'
       in: path
@@ -244,18 +243,32 @@ components:
         pattern: '^[0-9abcdef]{32}$'
         example: dafc61a8277b44a3a8dedf197a862783
   responses:
-    Success:
-      description: API successful response
+    Empty:
+      description: Empty successful response
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/APIResponse'
+            title: APIEmpty
+            description: API empty success
+            type: object
+            format: empty
     Error:
       description: API error response
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/APIResponse'
+            title: APIError
+            description: API error
+            type: object
+            properties:
+              'status':
+                type: integer
+                format: int32
+                description: Status code
+                example: 404
+              'message':
+                type: string
+                example: Error description
   links: {}
   callbacks: {}
   securitySchemes:
