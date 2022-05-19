@@ -18,7 +18,7 @@ The core backend sends optional signed callbacks to the "business" backend to no
 
 "Business" backend should implement methods required by the UI and is responsible for the secure data transmission.
 
-Check out [API, callbacks and signing](https://goldexrobot.github.io/core.integration.backend/).
+Check out [Swagger](https://goldexrobot.github.io/core.integration.backend/).
 
 ![Goldex environment](/docs/images/goldex_env.png)
 
