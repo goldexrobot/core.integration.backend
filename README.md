@@ -18,9 +18,20 @@ The core backend sends optional signed callbacks to the "business" backend to no
 
 "Business" backend should implement methods required by the UI and is responsible for the secure data transmission.
 
-Check out [API, callbacks data and signing playground](https://goldexrobot.github.io/core.integration.backend/).
+Check out [API, callbacks and signing](https://goldexrobot.github.io/core.integration.backend/).
 
 ![Goldex environment](/docs/images/goldex_env.png)
+
+---
+
+## API
+
+Goldex backend exposes an API to provide some extended information like photos, storage access history etc.
+Moreover the API allows business backend to control a vending machine.
+
+Calls to the API must be supplied with basic HTTP auth header. You can get the login/key in the Goldex dashboard.
+
+See [Swagger](https://goldexrobot.github.io/core.integration.backend/#goldex-api-v1).
 
 ---
 
@@ -28,44 +39,45 @@ Check out [API, callbacks data and signing playground](https://goldexrobot.githu
 
 Goldex backend sends HTTP requests to notify the business backend about a new events or to request some information for the vending terminal in real time.
 
-For instance: bot status changes, items evaluation, storage interaction, etc.
+For instance: items evaluation, storage interaction, etc.
 
 Exact endpoints to call by Goldex should be defined in Goldex dashboard.
 
-The HTTP requests are: **callbacks** and custom **UI methods**.
+The HTTP requests are: **callbacks** and named **proxy methods** (see below).
 
-Requests are always of method **POST** and carry **application/json; charset=utf-8** with headers:
+Requests are always of method **POST** and carry **application/json; charset=utf-8** with the headers:
 
 | Header | Meaning | Example |
 | --- | --- | --- |
 | X-CBOT-PROJECT-ID | Origin project ID | "1" |
 | X-CBOT-BOT-ID | Origin bot ID (uint64) | "42" |
 
-All the Goldex requests are signed (see below) (check out Goldex dashboard for a verification public key) and could be optionally transferred using mutual TLS.
+All the Goldex requests are signed (see below) and should be validated at business backend side.
 
-Business backend have to respond with successful HTTP status (200, 201, or 202) to signalize about callback consumption. Until then Goldex will continue to send callback requests.
-
-Callback models are described in [Swagger](https://goldexrobot.github.io/core.integration.backend)
+Business backend has to respond with successful HTTP status (200, 201, or 202) to signalize about callback consumption. Until then, Goldex will continue to send callback requests.
 
 ### Evaluation callbacks
 
-| Callback | Description | Model | Inside | Expected response |
-| --- | --- | --- | --- | --- |
-| Started | New item evaluation is created | `EvalStarted` | Evaluation ID | Status 200 |
-| Photo | New photo of the item is available | `EvalPhoto` | Evaluation ID, photo ID and origin | Status 200 |
-| Cancelled | Item evaluation is cancelled or failed | `EvalCancelled` | Evaluation ID, reason | Status 200 |
-| Finished | Item evaluation is successfully finished | `EvalFinished` | Estimated fineness, weight, etc. | Status 200 |
+Evaluation related callbacks are **optional** but give extra control over UI from backend side.
+
+See in [Swagger](https://goldexrobot.github.io/core.integration.backend/#business-callbacks).
 
 ### Storage callbacks
 
-| Callback | Description | Model | Inside | Expected response |
-| --- | --- | --- | --- | --- |
-| Cell occupation | Cell is occupied with some item | `StorageCellEvent` | Cell address and *domain* | Status 200 |
-| Cell release | Cell is freed and item is released | `StorageCellEvent` | Cell address and *domain* | Status 200 |
-| Pre-occupation | Optional, called before occupation to give more flexibility | `StorageCellEvent` | Cell address and *domain* | Status 200 and `{"allowed":true}` |
-| Pre-release | Optional, called before release to give more flexibility | `StorageCellEvent` | Cell address and *domain* | Status 200 and `{"allowed":true}` |
+Storage callbacks are sent during the access to the storage and are **mandatory**.
 
-*Domain* is an origin of the cell operation:
+See in [Swagger](https://goldexrobot.github.io/core.integration.backend/#business-callbacks)
+
+#### Domain/flow
+
+A storage cell could be occupied or released in multiple scenarios. To control the access to the cells and keep a history for audit there are **domains**.
+
+For example, an item is bought from a customer during buyout flow. It's now under *buyout* domain. Then the item is collected from the robot (flow is outside of UI), so it's released under *collection* domain.
+
+Another example. To sell an item it should be first loaded into the robot. In this particular scenario item is loaded using internal robot dashboard (outside of UI), so the loading action (cell occupation) has been made under *dashboard* domain/flow.
+
+Here are predefined domains/flows:
+
 | Domain | Whats |
 | --- | --- |
 | buyout | Cell is occupied during buyout flow |
@@ -75,11 +87,11 @@ Callback models are described in [Swagger](https://goldexrobot.github.io/core.in
 | dashboard | Cell is occupied/freed by staff members (on-bot system dashboard) |
 | other | For custom UI flows |
 
-### UI methods
+### Named proxy methods (UI methods)
 
-UI methods are custom named callbacks and available to call directly from the UI.
+Proxy methods are custom named callbacks (name-to-endpoint bindings) and available to call directly from the UI.
 
-In this case Goldex backend acts as secure proxy, for instance to authenticate a machine on business backend side.
+In this case Goldex backend acts as secure proxy between the robot and business backend (initially UI doesn't have an identity and can't be verified by the business backend side).
 
 For instance, let's assume you defined a method `auth` in Goldex dashboard and bound it to `https://example.com/bot/auth`.
 
@@ -98,45 +110,30 @@ UI now calls `auth` with some payload. Goldex backend adds bot/project IDs to th
 }
 ```
 
-Now Goldex backend waits for a response from your backend (status 200, application/json) and re-sends the response back to the UI.
+Now Goldex backend waits for a response from business backend (status 200, application/json) and returns the response back to the UI. Voila! The robot is authenticated on business backend side.
 
 ---
 
-## API
+### Callbacks signature
 
-Goldex backend exposes an API to provide some extended information like photos, storage access history etc.
-Moreover the API allows business backend to control a vending machine.
+Goldex signs callbacks with JWT. Token is signed with a per-project key (see Goldex dashboard) and is transferred in `Authorization` HTTP header (bearer).
 
-Calls to the HTTP API must be properly signed (see below) with per-project private key. You can get the key in the Goldex dashboard.
-
-GRPC API is also available.
-
-[API in Swagger](https://goldexrobot.github.io/core.integration.backend/).
-
----
-
-## Signing
-
-A request to Goldex API have to be properly signed, we are using JWT.
-
-JWT token should be transferred in `Authorization` HTTP header with `Bearer` prefix:
-
-Goldex callbacks are also signed with per-project key. It is not mandatory but is preferred to validate those callbacks. Developer is fully responsible for the security.
+Business backend **SHOULD** validate those callbacks. Developer is fully responsible for the security.
 
 ```text
 Authorization: Bearer <jwt.goes.here>
 ```
 
-### JWT claims
+#### JWT claims
 
-Here are default fields of JWT used during signing a request to Goldex API:
+Here are default fields of JWT used during signing:
 
 | Field | Purpose | Format | Example |
 | --- | --- | --- | --- |
-| aud | Recipient of the request | string(3-32): alphanumeric, `-`, `_` | `goldex` |
-| iss | API login (issuer) | string(3-32): alphanumeric, `-`, `_` | `my_login` |
-| jti | Unique request ID | string(6-36): alphanumeric, `-` (UUID compatible) | `16d91811-2b08-4462-8754-299eb1810963` |
-| sub | The request entity or domain | string(32): alphanumeric | `request` |
+| aud | Recipient name | string(3-32): alphanumeric, `-`, `_` | `project-1` |
+| iss | Issuer name | string(3-32): alphanumeric, `-`, `_` | `goldex` |
+| jti | Unique request ID | string(6-36): alphanumeric, `-` (UUID compatible) | `16d918112b0844628754299eb1810963` |
+| sub | Subject (request or notification) | string(32): alphanumeric | `request` |
 | exp, nbf, iat | Expiration, not before and issuance time | According to [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5) | - |
 
 Additional JWT fields:
@@ -148,16 +145,8 @@ Additional JWT fields:
 | mtd | Request method | string(8): GET, POST etc. | `POST` |
 | url | Request URL | string(256): valid URL | `https://example.com` |
 
-Body hash algorithm and hash fields **have to be empty** for bodiless request such as GET.
+Body hash algorithm and hash fields are empty for bodiless request such as GET.
 
-Goldex **callbacks** carries JWT with the next content:
+JWT **signing** algorithms are: `HS256` (HMAC SHA-256), `HS384` (HMAC SHA-384), `HS512` (HMAC SHA-512).
 
-| Field | Content |
-| --- | --- |
-| aud | ["project-N"] where N is project ID |
-| iss | "goldex" |
-| sub | "notification" or "request" depending on context |
-
-Allowed JWT __signing__ algorithms: `HS256` (HMAC SHA-256), `HS384` (HMAC SHA-384), `HS512` (HMAC SHA-512).
-
-Try out signing [here](https://goldexrobot.github.io/core.integration.backend/).
+Try out signing [here](https://goldexrobot.github.io/core.integration.backend/signature/).
