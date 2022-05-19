@@ -66,8 +66,8 @@ func TestNonceRegexp(t *testing.T) {
 func TestParseToken(t *testing.T) {
 
 	var keypair = map[string]struct {
-		Private []byte
-		Public  []byte
+		KeyForSigning []byte
+		KeyForValidation  []byte
 	}{
 		"goldex": {
 			[]byte("awesomekey!"),
@@ -80,23 +80,23 @@ func TestParseToken(t *testing.T) {
 	}
 
 	var sign = func(r SignedRequest, smethod jwt.SigningMethod) string {
-		j, err := r.Sign(smethod, keypair[r.Signer].Private, time.Now())
+		j, err := r.Sign(smethod, keypair[r.Signer].KeyForSigning, time.Now())
 		if err != nil {
 			t.Fatal(err)
 		}
 		return j
 	}
 
-	var l2k = func(signer string) (key interface{}, err error) {
+	var s2k = func(signer string) (key []byte, err error) {
 		if pair, ok := keypair[signer]; ok {
-			return pair.Public, nil
+			return pair.KeyForValidation, nil
 		}
 		return nil, errors.New("no key for this login")
 	}
 
 	type args struct {
 		jwtToken   string
-		loginToKey func(login string) (key interface{}, err error)
+		loginToKey func(login string) (key []byte, err error)
 	}
 	tests := []struct {
 		name    string
@@ -122,7 +122,7 @@ func TestParseToken(t *testing.T) {
 					},
 					DefaultSignAlg(),
 				),
-				l2k,
+				s2k,
 			},
 			JWTPayload{
 				Method:      "POST",
@@ -150,7 +150,7 @@ func TestParseToken(t *testing.T) {
 					},
 					DefaultSignAlg(),
 				),
-				l2k,
+				s2k,
 			},
 			JWTPayload{
 				Method: "GET",
@@ -174,7 +174,7 @@ func TestParseToken(t *testing.T) {
 					},
 					DefaultSignAlg(),
 				),
-				l2k,
+				s2k,
 			},
 			JWTPayload{},
 			true,

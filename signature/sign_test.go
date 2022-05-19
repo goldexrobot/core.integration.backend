@@ -13,12 +13,12 @@ func TestSignedRequest_Sign(t *testing.T) {
 
 	type args struct {
 		smethod    jwt.SigningMethod
-		privateKey interface{}
+		key []byte
 	}
 
 	argz := args{
 		smethod:    DefaultSignAlg(),
-		privateKey: key,
+		key: key,
 	}
 
 	tests := []struct {
@@ -73,7 +73,7 @@ func TestSignedRequest_Sign(t *testing.T) {
 			},
 			args{
 				smethod:    DefaultSignAlg(),
-				privateKey: nil,
+				key: nil,
 			},
 			true,
 		},
@@ -91,7 +91,7 @@ func TestSignedRequest_Sign(t *testing.T) {
 			},
 			args{
 				smethod:    nil,
-				privateKey: key,
+				key: key,
 			},
 			true,
 		},
@@ -115,7 +115,7 @@ func TestSignedRequest_Sign(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := tt.r.Sign(tt.args.smethod, tt.args.privateKey, time.Now())
+			_, err := tt.r.Sign(tt.args.smethod, tt.args.key, time.Now())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SignedRequest.Sign() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -24,13 +24,13 @@ type SignedRequest struct {
 	BodyHashAlg crypto.Hash
 }
 
-func (r SignedRequest) Sign(smethod jwt.SigningMethod, privateKey interface{}, issued time.Time) (jwtToken string, err error) {
+func (r SignedRequest) Sign(smethod jwt.SigningMethod, key []byte, issued time.Time) (jwtToken string, err error) {
 	switch {
 	case smethod == nil:
 		err = errors.New("signing method can't be empty")
 		return
-	case privateKey == nil:
-		err = errors.New("private key can't be empty")
+	case len(key) == 0:
+		err = errors.New("key can't be empty")
 		return
 	}
 
@@ -76,7 +76,7 @@ func (r SignedRequest) Sign(smethod jwt.SigningMethod, privateKey interface{}, i
 	}
 
 	// sign
-	jwtToken, err = jwt.NewWithClaims(smethod, claims).SignedString(privateKey)
+	jwtToken, err = jwt.NewWithClaims(smethod, claims).SignedString(key)
 	if err != nil {
 		err = fmt.Errorf("signing jwt: %w", err)
 		return
