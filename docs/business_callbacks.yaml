@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Business API (callbacks)
-  description: 'The scheme describes business backend API (callbacks). Goldex core backend calls the API during a bot operation (item evaluation, storage management). <br><br> Please navigate to the Goldex dashbaord to turn on the callbacks invocation. <br><br> Goldex [signs](https://github.com/goldexrobot/core.integration.backend/#signing) callbacks it sends with extended JWT which includes even a hash of the request body. The verification might be a complex thing, however a callback **SHOULD BE** verified at least at the basic level &mdash; JWT validation including issuance and expiration time, issuer name and recipient (project id). You are (developer) is fully responsible for the security. <br><br> A callback is successful if it responds to the Goldex backend with HTTP **status 200**'
+  description: 'The scheme describes business backend API (callbacks). Goldex core backend calls the API during a bot operation (item evaluation, storage management). <br><br> Please navigate to the Goldex dashboard to turn on the callbacks invocation. <br><br> Goldex [signs](https://github.com/goldexrobot/core.integration.backend/#signing) callbacks it sends with extended JWT which includes even a hash of the request body. The verification might be a complex thing, however a callback **SHOULD BE** verified at least at the basic level &mdash; JWT validation including issuance and expiration time, issuer name and recipient (project id). You are (developer) is fully responsible for the security. <br><br> A callback is successful if it responds to the Goldex backend with HTTP **status 200**'
   version: '1.0'
   contact:
     name: Docs at Github
@@ -99,7 +99,7 @@ paths:
           $ref: '#/components/responses/Whatever'
       tags:
         - storage
-  '/storage/relesed':
+  '/storage/released':
     post:
       summary: Cell has been released
       description: 'Cell is released in one of domain/flow: UI flows like shop/pawnshop or internal flow (on-board bot dashboard)'
@@ -130,11 +130,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  'allowed':
-                    description: Allow the occupation
-                    type: boolean
+                $ref: "#/components/schemas/StorageCellEventAllowance"
         'default':
           description: Error (forbids the cell occupation)
           content:
@@ -160,11 +156,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  'allowed':
-                    description: Allow the release
-                    type: boolean
+                $ref: "#/components/schemas/StorageCellEventAllowance"
         'default':
           description: Error (forbids the cell release)
           content:
@@ -175,7 +167,14 @@ paths:
       tags:
         - storage
 components:
-  schemas: {}
+  schemas:
+    StorageCellEventAllowance:
+      title: StorageCellEventAllowance
+      type: object
+      properties:
+        'allowed':
+          description: Allow cell occupation/release
+          type: boolean
   parameters:
     BotID:
       description: Bot ID
@@ -183,8 +182,7 @@ components:
       in: header
       required: false
       schema:
-        type: integer
-        format: uint64
+        type: string
         example: 42
     ProjectID:
       description: Project ID
@@ -192,14 +190,14 @@ components:
       in: header
       required: false
       schema:
-        type: integer
-        format: uint64
+        type: string
         example: 1
   requestBodies:
     EvalStarted:
       content:
         'application/json':
           schema:
+            title: EvalStarted
             type: object
             properties:
               project_id:
@@ -221,6 +219,7 @@ components:
       content:
         'application/json':
           schema:
+            title: EvalPhoto
             type: object
             properties:
               project_id:
@@ -258,6 +257,7 @@ components:
       content:
         'application/json':
           schema:
+            title: EvalCancelled
             type: object
             properties:
               project_id:
@@ -298,6 +298,7 @@ components:
      content:
       'application/json':
         schema:
+          title: EvalFinished
           type: object
           properties:
             project_id:
@@ -340,7 +341,7 @@ components:
             fineness_millesimal:
               description: 'Detected millesimal fineness. Example: 585 stands for 58.5%, 999 for 99.9%, 9999 for 99.99%'
               type: integer
-              format: int64
+              format: int32
               example: 9999
             fineness_purity:
               description: Detected fineness purity in percents
@@ -375,6 +376,7 @@ components:
       content:
         'application/json':
           schema:
+            title: StorageCellEvent
             type: object
             properties:
               project_id:
@@ -433,6 +435,16 @@ components:
   securitySchemes: {}
 security: [{}]
 servers:
-  - url: 'http://localhost:8000/goldex'
-    description: 'Dev backend'
+  - url: '{scheme}://{host}'
+    description: 'Callbacks base'
+    variables:
+      scheme:
+        description: Scheme
+        enum:
+          - http
+          - https
+        default: https
+      host:
+        description: Host, port, prefix
+        default: localhost:8000/callbacks/goldex
     

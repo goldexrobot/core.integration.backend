@@ -435,6 +435,16 @@ components:
   securitySchemes: {}
 security: [{}]
 servers:
-  - url: 'http://localhost:8000/goldex'
-    description: 'Dev backend'
+  - url: '{scheme}://{host}'
+    description: 'Callbacks base'
+    variables:
+      scheme:
+        description: Scheme
+        enum:
+          - http
+          - https
+        default: https
+      host:
+        description: Host, port, prefix
+        default: localhost:8000/callbacks/goldex
     
