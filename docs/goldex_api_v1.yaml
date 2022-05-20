@@ -237,7 +237,6 @@ components:
       required: true
       schema:
         type: string
-        format: uuid
         minLength: 32
         maxLength: 32
         pattern: '^[0-9abcdef]{32}$'
