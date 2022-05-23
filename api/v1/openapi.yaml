@@ -289,4 +289,4 @@ servers:
         default: https
       host:
         description: Host, port, prefix
-        default: localhost:8000/api
+        default: play.custodybot.com/api
