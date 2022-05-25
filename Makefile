@@ -2,11 +2,10 @@ all: test swagger
 	@:
 
 tools:
-	@cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
+	go install golang.org/x/tools/cmd/stringer@latest
 
 swagger:
-	cp api/v1/openapi.yaml docs/goldex_api_v1.yaml
-	cp callback/openapi.yaml docs/business_callbacks.yaml
+	cp api/v1/openapi.yaml docs/api_v1.yaml
 
 test:
 	@go test ./signature

@@ -16,7 +16,7 @@ This core backend exposes API to control the machine from outside.
 
 The core backend sends optional signed callbacks to the "business" backend to notify about valuable evaluation steps and storage interaction.
 
-"Business" backend should implement methods required by the UI and is responsible for the secure data transmission.
+Business backend should implement methods required by the UI and is responsible for the secure data transmission.
 
 Check out [Swagger](https://goldexrobot.github.io/core.integration.backend/).
 
@@ -31,19 +31,21 @@ Moreover the API allows business backend to control a vending machine.
 
 Calls to the API must be supplied with basic HTTP auth header. You can get the login/key in the Goldex dashboard.
 
-See [Swagger](https://goldexrobot.github.io/core.integration.backend/#goldex-api-v1).
+See [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
 ---
 
 ## Callbacks
 
-Goldex backend sends HTTP requests to notify the business backend about a new events or to request some information for the vending terminal in real time.
+Goldex backend sends optional HTTP requests to notify the business backend about a new events or to request some information for the vending terminal in real time.
+
+See `POST /callbacks` in [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
 For instance: items evaluation, storage interaction, etc.
 
-Exact endpoints to call by Goldex should be defined in Goldex dashboard.
+Exact endpoints to call by Goldex should be defined in a call to the Goldex API. 
 
-The HTTP requests are: **callbacks** and named **proxy methods** (see below).
+The HTTP requests are: **callbacks** and **named proxy endpoints** (see below).
 
 Requests are always of method **POST** and carry **application/json; charset=utf-8** with the headers:
 
@@ -52,21 +54,17 @@ Requests are always of method **POST** and carry **application/json; charset=utf
 | X-CBOT-PROJECT-ID | Origin project ID | "1" |
 | X-CBOT-BOT-ID | Origin bot ID (uint64) | "42" |
 
-All the Goldex requests are signed (see below) and should be validated at business backend side.
+All the Goldex requests are signed (see below) and **should be** validated at business backend side.
 
-Business backend has to respond with successful HTTP status (200, 201, or 202) to signalize about callback consumption. Until then, Goldex will continue to send callback requests.
+Business backend has to respond with successful HTTP status (200, 201, or 202) to signalize about callback consumption. Until then, Goldex may continue to resend requests.
 
 ### Evaluation callbacks
 
-Evaluation related callbacks are **optional** but give extra control over UI from backend side.
-
-See in [Swagger](https://goldexrobot.github.io/core.integration.backend/#business-callbacks).
+Evaluation related callbacks are optional, but give extra control from business backend side.
 
 ### Storage callbacks
 
-Storage callbacks are sent during the access to the storage and are **mandatory**.
-
-See in [Swagger](https://goldexrobot.github.io/core.integration.backend/#business-callbacks)
+Storage callbacks are sent during the access (UI) to the storage and are preferred to be implemented.
 
 #### Domain/flow
 
@@ -89,15 +87,17 @@ Here are predefined domains/flows:
 Note about a shop flow. First of all, an item should be loaded into the storage of the bot. Then it could appear in the UI as a product we're selling. \
 So the storage is loaded through the internal dashboard of the bot, therefore in this case the cell is loaded under the collection/dashboard domain.
 
-### Named proxy methods (UI methods)
+### Named proxy endpoints (UI methods)
 
-Proxy methods are custom named callbacks (name-to-endpoint bindings) and available to call directly from the UI.
+Proxy methods are custom named callbacks (name-to-endpoint bindings) and available to be called directly from the UI.
 
-In this case Goldex backend acts as secure proxy between the robot and business backend (initially UI doesn't have an identity and can't be verified by the business backend side).
+See `POST /proxy` in [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
-For instance, let's assume you defined a method `auth` in Goldex dashboard and bound it to `https://example.com/bot/auth`.
+In this case Goldex backend acts as secure proxy between the robot and business backend (initially UI doesn't have an identity (robot ID) and can't be identified by the business backend side).
 
-UI now calls `auth` with some payload. Goldex backend adds bot/project IDs to the request, signs it and and sends to `POST https://example.com/bot/auth`:
+For instance, let's assume business backend have defined an endpoint `auth` pointing to `https://example.com/bot/auth`.
+
+UI now calls `auth` with some payload using internal UI API. Goldex backend adds bot/project IDs to the request, signs it and and sends `POST https://example.com/bot/auth`:
 
 ```json
 {
@@ -105,14 +105,16 @@ UI now calls `auth` with some payload. Goldex backend adds bot/project IDs to th
   "bot_id": 42,
   "payload": {
     // bot`s request k/v goes here:
-    "foo": {
-      "bar": "baz"
-    }
+    "my_token": "some JWT token"
   }
 }
 ```
 
-Now Goldex backend waits for a response from business backend (status 200, application/json) and returns the response back to the UI. Voila! The robot is authenticated on business backend side.
+Then Goldex backend waits for a response from the business backend (status 200, application/json) and returns the response back to the UI.
+
+For example, business backend can generates a JWT in a response to the request.
+
+Voila! The robot is identified on the business side and got the auth token.
 
 ---
 
@@ -120,7 +122,7 @@ Now Goldex backend waits for a response from business backend (status 200, appli
 
 Goldex signs callbacks with JWT. Token is signed with a per-project key (see Goldex dashboard) and is transferred in `Authorization` HTTP header (bearer).
 
-Business backend **SHOULD** validate those callbacks. Developer is fully responsible for the security.
+Business backend **should** validate those callbacks. Developer is fully responsible for the security.
 
 ```text
 Authorization: Bearer <jwt.goes.here>
