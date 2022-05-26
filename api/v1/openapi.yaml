@@ -848,6 +848,7 @@ components:
             - cell
             - domain
             - transaction
+            - time
           properties:
             'cell':
               $ref: '#/components/schemas/StorageCell'
@@ -1001,15 +1002,13 @@ components:
     EvalCallbacks:
       '/eval_started':
         post:
-          summary: Evaluation is going to be started
-          description: 'Evaluation start is initiated by the UI of the robot. In case of error response the evaluation will be rejected by Goldex and a new evaluation will not be started'
+          summary: Evaluation is started
+          description: 'Callback will be sent just before the UI will get acknowledgment of evaluation successful start. Callback is **synchronous**, but the response to the callback does not matter and does not affect the flow'
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalStarted'
           responses:
             '200':
-              $ref: '#/components/responses/CallbackAllowance'
-            'default':
-              $ref: '#/components/responses/CallbackFailed'
+              $ref: '#/components/responses/CallbackEmpty'
           parameters:
             - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
               name: Authorization
@@ -1035,7 +1034,7 @@ components:
       '/eval_photo':
         post:
           summary: New photo is available
-          description: Bot takes several photos during the item evaluation. The photos could help to decide to accept or reject the valuable at business side
+          description: 'Callback will be sent once a new photo of evaluating item is received from a robot. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalPhoto'
           responses:
@@ -1066,7 +1065,7 @@ components:
       '/eval_cancelled':
         post:
           summary: Evaluation is cancelled or rejected
-          description: Customer has interrupted the evaluation process or some hardware has failed
+          description: 'Callback will be sent on the next events: customer has interrupted the evaluation process, Goldex has rejected the item, some hardware has failed. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalCancelled'
           responses:
@@ -1097,7 +1096,7 @@ components:
       '/eval_finished':
         post:
           summary: Evaluation is successfully finished
-          description: All the evaluation measurements are done and the control is passed to the business backend
+          description: 'Callback is sent when all the evaluation measurements are done and the control is passed to the business backend. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalFinished'
           responses:
@@ -1129,7 +1128,7 @@ components:
       '/storage_occupied':
         post:
           summary: Cell has been occupied
-          description: 'Cell is occupied in one of domain/flow: UI flows like buyout/pawnshop or internal flow (on-board bot dashboard)'
+          description: 'Cell is occupied in one of domain/flow: UI flow (like buyout/pawnshop), on-board bot dashboards. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
@@ -1160,7 +1159,7 @@ components:
       '/storage_released':
         post:
           summary: Cell has been released
-          description: 'Cell is released in one of domain/flow: UI flows like shop/pawnshop or internal flow (on-board bot dashboard)'
+          description: 'Cell is released in one of domain/flow: UI flow (like shop/pawnshop), on-board bot dashboards. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
@@ -1191,7 +1190,7 @@ components:
       '/storage_can_occupy':
         post:
           summary: Cell is going to be occupied
-          description: Before the storage cell will be occupied with an item (in any domain/flow) this callback is called, thus it gives a fine control over storage management
+          description: Before the storage cell will be occupied with an item (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
@@ -1224,7 +1223,7 @@ components:
       '/storage_can_release':
         post:
           summary: Cell is going to be released
-          description: Before the storage cell will be released (in any domain/flow) this callback is called, thus it gives a fine control over storage management
+          description: Before the storage cell will be released (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
@@ -1257,8 +1256,8 @@ components:
     ProxyCallbacks:
       '/{endpoint}':
         post:
-          summary: Named method endpoint
-          description: 'Named method called by UI and proxied by Goldex'
+          summary: Named UI endpoints
+          description: 'Named UI endpoint to proxy via Goldex to the business backend side'
           requestBody:
             $ref: '#/components/requestBodies/CallbackProxy'
           responses:
