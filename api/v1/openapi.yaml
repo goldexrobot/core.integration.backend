@@ -22,7 +22,7 @@ paths:
   '/bots':
     get:
       summary: Available bots
-      description: Returns a list of bots **currently** available for the current project/integration. The list is not fixed as a bot can be moved to another project
+      description: Returns a list of bots **currently** available for the current project/integration. <br><br>The list is not fixed as a bot can be moved to another project.
       operationId: getBots
       responses:
         '200':
@@ -42,7 +42,7 @@ paths:
       - $ref: '#/components/parameters/BotID'
     get:
       summary: Bot info
-      description: Describes a bot by ID
+      description: Describes a bot by ID.
       operationId: getBot
       responses:
         '200':
@@ -60,7 +60,7 @@ paths:
       - $ref: '#/components/parameters/BotID'
     post:
       summary: Send a command
-      description: Sends a predefined command to the bot. This allows a manager to control the bot remotely
+      description: Sends a predefined command to the bot. This allows a manager to control the bot remotely.
       operationId: sendBotCommand
       requestBody:
         description: Command to perform
@@ -81,7 +81,7 @@ paths:
       - $ref: '#/components/parameters/BotID'
     get:
       summary: Storage state
-      description: Describes the storage of the bot
+      description: Returns a state of the storage of the bot.
       operationId: getBotStorage
       responses:
         '200':
@@ -100,7 +100,7 @@ paths:
       - $ref: '#/components/parameters/EvalID'
     get:
       summary: Evaluation state
-      description: Retrieves evaluation data specified by ID
+      description: Retrieves evaluation data specified by ID.
       operationId: getEval
       responses:
         '200':
@@ -118,7 +118,7 @@ paths:
       - $ref: '#/components/parameters/EvalID'
     get:
       summary: Evaluation photos
-      description: Returns a list of photo IDs belong to the evaluation
+      description: Returns a list of photo IDs belong to the evaluation.
       operationId: getEvalPhotos
       responses:
         '200':
@@ -139,7 +139,7 @@ paths:
       - $ref: '#/components/parameters/PhotoID'
     get:
       summary: Photo content
-      description: Returns a content of the photo specified by ID
+      description: Returns a content of the photo specified by ID.
       operationId: getPhotoFile
       responses:
         '200':
@@ -165,7 +165,7 @@ paths:
           $ref: "#/components/schemas/Alloy"
     get:
       summary: London Metal Exchange
-      description: Returns a metal current price **per gram** trading at [London Metal Exchange](https://www.lme.com/)
+      description: Returns current metal price **per gram** trading at [London Metal Exchange](https://www.lme.com/).
       operationId: getPriceLME
       responses:
         '200':
@@ -184,7 +184,7 @@ paths:
   '/callbacks':
     post:
       summary: Set callbacks
-      description: Sets callback URLs to listen to events on business backend side. Send an empty object to clear callbacks
+      description: Sets callback endpoints to listen to events on business backend side. <br>Send an empty object to clear callbacks.<br><br>Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). Query part of the endpoint URL will be dropped.
       operationId: setCallbacks
       requestBody:
         description: Callbacks mapping (or an empty list)
@@ -208,7 +208,7 @@ paths:
   '/proxy':
     post:
       summary: Set proxy endpoints for UI
-      description: Sets a list of named endpoints for UI. The UI will make requests by name and Goldex will proxy these requests to the business backend endpoints. Send an empty object to clear the list
+      description: 'Sets a list of named endpoints for UI. The UI will make requests by name and Goldex will proxy these requests to the business backend endpoints. <br>Send an empty object to clear the list.<br><br>Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). Query part of the endpoint URL will be dropped.'
       operationId: setProxyEndpoints
       requestBody:
         description: Endpoints mapping (or an empty list)
