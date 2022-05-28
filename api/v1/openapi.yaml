@@ -332,11 +332,14 @@ components:
       required: 
         - cell
         - domain
+        - transaction
       properties:
         'cell':
           $ref: '#/components/schemas/StorageCell'
         'domain':
           $ref: '#/components/schemas/StorageDomain'
+        'transaction':
+          $ref: '#/components/schemas/StorageTransaction'
     StorageTransaction:
       title: StorageTransaction
       description: Unique ID of the cell state change
