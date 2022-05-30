@@ -559,10 +559,13 @@ components:
       type: object
       required:
         - id
+        - preview_id
         - origin
         - uploaded_at
       properties:
         'id':
+          $ref: '#/components/schemas/PhotoID'
+        'preview_id':
           $ref: '#/components/schemas/PhotoID'
         'origin':
           $ref: '#/components/schemas/PhotoOriginEnum'
@@ -809,17 +812,12 @@ components:
       title: CallbackEvalPhotoBody
       allOf:
         - $ref: '#/components/schemas/BaseEvalCallbackData'
+        - $ref: '#/components/schemas/EvalPhoto'
         - title: EvalPhotoCallbackDataInner
           type: object
           required:
-            - origin
-            - photo_id
             - preview
           properties:
-            'origin':
-              $ref: '#/components/schemas/PhotoOriginEnum'
-            'photo_id':
-              $ref: '#/components/schemas/PhotoID'
             'preview':
               description: Base-64 encoded image containing low resolution photo
               type: string
