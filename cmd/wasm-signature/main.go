@@ -11,7 +11,7 @@ import (
 	"syscall/js"
 	"time"
 
-	"github.com/goldexrobot/core.integration.backend/signature"
+	"github.com/goldexrobot/core.integration.backend/pkg/signature"
 )
 
 var stopper chan struct{}

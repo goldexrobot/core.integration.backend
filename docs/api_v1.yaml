@@ -1,11 +1,16 @@
 openapi: 3.0.0
+
 info:
   title: Goldex Robot API
-  description: The API is Goldex Robot side API business backend should call to. Actual servers are omitted for security reason.
-  version: '1.0'
+  description: |-
+    The API is Goldex Robot side API business backend should call to. 
+    
+    Actual servers are omitted for a security reason.
+  version: '1.1.0'
   contact:
     name: Docs at Github
     url: 'https://github.com/goldexrobot/core.integration.backend'
+    
 tags:
   - name: bot
     description: Bots state and control
@@ -17,12 +22,20 @@ tags:
     description: Metal prices
   - name: callback
     description: Business backend callbacks and named proxy endpoints
+    
 paths:
-  ### BOTS ###
+  
+  #
+  # Bots
+  #
+  
   '/bots':
     get:
       summary: Available bots
-      description: Returns a list of bots **currently** available for the current project/integration. <br><br>The list is not fixed as a bot can be moved to another project.
+      description: |
+        Returns a list of bots **currently** available for the current project/integration.
+        
+        The list is not fixed as a bot can be moved to another project.
       operationId: getBots
       responses:
         '200':
@@ -37,6 +50,7 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - bot
+  
   '/bots/{botID}':
     parameters:
       - $ref: '#/components/parameters/BotID'
@@ -55,6 +69,7 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - bot
+  
   '/bots/{botID}/command':
     parameters:
       - $ref: '#/components/parameters/BotID'
@@ -76,6 +91,7 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - bot
+  
   '/bots/{botID}/storage':
     parameters:
       - $ref: '#/components/parameters/BotID'
@@ -94,7 +110,11 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - bot
-  ### EVALS ###
+        
+  #
+  # Evals
+  #
+  
   '/evals/{evalID}':
     parameters:
       - $ref: '#/components/parameters/EvalID'
@@ -113,6 +133,7 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - eval
+  
   '/evals/{evalID}/photos':
     parameters:
       - $ref: '#/components/parameters/EvalID'
@@ -133,7 +154,11 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - eval
-  ### FILES ###
+  
+  #
+  # Files
+  #
+  
   '/files/photo/{photoID}':
     parameters:
       - $ref: '#/components/parameters/PhotoID'
@@ -154,7 +179,11 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - file
-  ### PRICES ###
+  
+  #
+  # Prices
+  #
+  
   '/prices/lme/{metal}':
     parameters:
       - name: 'metal'
@@ -180,7 +209,11 @@ paths:
           $ref: '#/components/responses/Error'
       tags:
         - price
-  ### CALLBACKS ###
+  
+  #
+  # Callbacks binding
+  #
+  
   '/callbacks':
     post:
       summary: Set callbacks
@@ -205,6 +238,7 @@ paths:
           $ref: '#/components/callbacks/StorageCallbacks'
       tags:
         - callback
+  
   '/proxy':
     post:
       summary: Set proxy endpoints for UI
@@ -227,27 +261,36 @@ paths:
           $ref: '#/components/callbacks/ProxyCallbacks'
       tags:
         - callback
+
 components:
+
   schemas:
-    ### PRIMITIVES ###
+  
+    #
+    # Primitives
+    #
+    
     ProjectID:
       title: ProjectID
       description: Project ID
       type: integer
       format: uint64
       example: 1
+      
     BotID:
       title: BotID
       description: Bot ID
       type: integer
       format: uint64
       example: 42
+      
     EvalID:
       title: EvalID
       description: Evaluation ID
       type: integer
       format: uint64
       example: 1337
+      
     PhotoOriginEnum:
       title: PhotoOriginEnum
       description: An origin the photo comes from. `item` is the item photo, `outer` - photo from the outer camera
@@ -259,6 +302,7 @@ components:
       maxLength: 8
       x-oapi-codegen-extra-tags:
         validate: required,min=1,max=8,alpha,lowercase
+        
     PhotoID:
       title: PhotoID
       description: Photo ID
@@ -268,6 +312,7 @@ components:
       example: dafc61a8277b44a3a8dedf197a862783
       x-oapi-codegen-extra-tags: 
         validate: required,len=32,hexadecimal
+        
     Alloy:
       title: Alloy
       description: Metal alloy
@@ -279,6 +324,7 @@ components:
         - ag
       x-oapi-codegen-extra-tags: 
         validate: required,len=2,alpha,lowercase
+        
     SpectrumItem:
       title: SpectrumItem
       type: object
@@ -301,6 +347,7 @@ components:
           example: 13.37
           x-oapi-codegen-extra-tags: 
             validate: min=0,max=100
+            
     StorageCell:
       title: StorageCell
       description: Cell address
@@ -310,6 +357,7 @@ components:
       example: A9
       x-oapi-codegen-extra-tags: 
         validate: required,min=2,max=4,alphanum,uppercase
+        
     StorageDomain:
       title: StorageDomain
       description: Domain/flow of the cell state change
@@ -325,6 +373,7 @@ components:
         - other
       x-oapi-codegen-extra-tags:
         validate: required,min=1,max=16,alpha,lowercase
+        
     StorageCellState:
       title: CellState
       description: Cell state
@@ -340,6 +389,7 @@ components:
           $ref: '#/components/schemas/StorageDomain'
         'transaction':
           $ref: '#/components/schemas/StorageTransaction'
+          
     StorageTransaction:
       title: StorageTransaction
       description: Unique ID of the cell state change
@@ -349,18 +399,37 @@ components:
       example: 240702e1e8be42d39137c1d802dd6941
       x-oapi-codegen-extra-tags:
         validate: required,len=32,hexadecimal
+        
     EvalStatus:
       title: EvalStatus
       description: Evaluation state
       type: string
       enum:
         - started
-        - cancelled
         - finished
+        - rejected
+        - failed
+        - cancelled
       minLength: 1
       maxLength: 16
       x-oapi-codegen-extra-tags:
         validate: required,min=1,max=16,alpha,lowercase
+
+    EvalRejection:
+      title: EvalRejection
+      description: Eval rejection reason
+      type: string
+      enum:
+        - undescribed
+        - low_spectrum
+        - low_weight
+        - high_weight
+        - unconfirmed
+      minLength: 1
+      maxLength: 16
+      x-oapi-codegen-extra-tags:
+        validate: required,min=1,max=16,lowercase
+
     EvalWarning:
       title: EvalWarning
       type: string
@@ -372,6 +441,7 @@ components:
       example: tungsten_in_gold
       x-oapi-codegen-extra-tags:
         validate: required,min=1,max=32,lowercase
+    
     FinishedEvalData:
       title: FinishedEvalData
       type: object
@@ -455,29 +525,11 @@ components:
           example: 3.141
           x-oapi-codegen-extra-tags:
             validate: required,min=0.001
-    CancelledEvalReason:
-      title: CancelledEvalReason
-      description: Cancellation reason
-      type: string
-      enum:
-        - rejected
-        - cancelled
-        - progress
-        - broken
-        - xrf_aim
-        - empty_spectrum
-        - low_spectrum
-        - unstable_scale
-        - weight_low
-        - weight_high
-        - wet_weight_low
-        - wet_weight_high
-        - invalid_density
-      minLength: 1
-      maxLength: 32
-      x-oapi-codegen-extra-tags:
-        validate: required,min=1,max=32,lowercase
-    ### API ###
+        
+    #
+    # Bots
+    #
+    
     BotInfo:
       title: BotInfo
       description: Bot info data
@@ -496,6 +548,7 @@ components:
           example: CB-616
           x-oapi-codegen-extra-tags: 
             validate: required,min=6,max=9,uppercase
+            
     BotCommand:
       title: BotCommand
       description: Command to send to the bot
@@ -517,6 +570,7 @@ components:
           example: mode_operational
           x-oapi-codegen-extra-tags:
             validate: required,min=1,max=32,lowercase
+            
     BotStorageState:
       title: BotStorageState
       description: Storage state description
@@ -553,16 +607,24 @@ components:
           example: -1
           x-oapi-codegen-extra-tags: 
             validate: min=-1,max=9999
+            
+    # 
+    # Evals
+    #
+    
     EvalPhoto:
       title: EvalPhoto
       description: List of evaluation photos
       type: object
       required:
         - id
+        - preview_id
         - origin
         - uploaded_at
       properties:
         'id':
+          $ref: '#/components/schemas/PhotoID'
+        'preview_id':
           $ref: '#/components/schemas/PhotoID'
         'origin':
           $ref: '#/components/schemas/PhotoOriginEnum'
@@ -570,6 +632,7 @@ components:
           description: Time of upload (RFC 3339)
           type: string
           format: date-time
+          
     EvalData:
       title: EvalData
       description: Evaluation data
@@ -592,20 +655,26 @@ components:
           description: Time of last update (RFC 3339)
           type: string
           format: date-time
+          
     EvalDataCase:
       title: EvalDataCase
-      description: 'Payload depending on status, one of: started, cancelled, finished'
+      description: 'Payload depending on evaluation status'
       type: object
       oneOf:
         - $ref: '#/components/schemas/EvalDataCaseStarted'
-        - $ref: '#/components/schemas/EvalDataCaseCancelled'
         - $ref: '#/components/schemas/EvalDataCaseFinished'
+        - $ref: '#/components/schemas/EvalDataCaseRejected'
+        - $ref: '#/components/schemas/EvalDataCaseFailed'
+        - $ref: '#/components/schemas/EvalDataCaseCancelled'
       discriminator:
         propertyName: status
         mapping:
           'started': '#/components/schemas/EvalDataCaseStarted'
-          'cancelled': '#/components/schemas/EvalDataCaseCancelled'
           'finished': '#/components/schemas/EvalDataCaseFinished'
+          'rejected': '#/components/schemas/EvalDataCaseRejected'
+          'failed': '#/components/schemas/EvalDataCaseFailed'
+          'cancelled': '#/components/schemas/EvalDataCaseCancelled'
+          
     EvalDataCaseStarted:
       title: EvalDataCaseStarted
       description: Started evaluation data
@@ -617,20 +686,7 @@ components:
           $ref: '#/components/schemas/EvalStatus'
       discriminator:
         propertyName: status
-    EvalDataCaseCancelled:
-      title: EvalDataCaseCancelled
-      description: Cancelled or rejected evaluation data
-      type: object
-      required:
-        - status
-        - reason
-      properties:
-        'status':
-          $ref: '#/components/schemas/EvalStatus'
-        'reason':
-          $ref: '#/components/schemas/CancelledEvalReason'
-      discriminator:
-        propertyName: status
+
     EvalDataCaseFinished:
       title: EvalDataCaseFinished
       description: Finished evaluation data
@@ -645,6 +701,52 @@ components:
         - $ref: '#/components/schemas/FinishedEvalData'
       discriminator:
         propertyName: status
+    
+    EvalDataCaseRejected:
+      title: EvalDataCaseRejected
+      description: Evaluation is rejected by Goldex
+      type: object
+      required:
+        - status
+        - reason
+      properties:
+        'status':
+          $ref: '#/components/schemas/EvalStatus'
+        'reason':
+          $ref: '#/components/schemas/EvalRejection'
+      discriminator:
+        propertyName: status
+
+    EvalDataCaseFailed:
+      title: EvalDataCaseFailed
+      description: Something went wrong
+      type: object
+      required:
+        - status
+      properties:
+        'status':
+          $ref: '#/components/schemas/EvalStatus'
+      discriminator:
+        propertyName: status
+
+    EvalDataCaseCancelled:
+      title: EvalDataCaseCancelled
+      description: Customer has cancelled the eval
+      type: object
+      required:
+        - status
+      properties:
+        'status':
+          $ref: '#/components/schemas/EvalStatus'
+      discriminator:
+        propertyName: status
+        
+    
+        
+    #
+    # Prices
+    #
+    
     MetalPrice:
       title: MetalPrice
       description: Price in currency
@@ -668,6 +770,11 @@ components:
           example: 13.37
           x-oapi-codegen-extra-tags: 
             validate: required,number,gt=0
+            
+    #
+    # Callbacks binding
+    #
+    
     CallbackBinding:
       title: CallbackBinding
       description: Callbacks binding
@@ -746,6 +853,7 @@ components:
           example: www.example.com
           x-oapi-codegen-extra-tags: 
             validate: omitempty,max=256,url
+            
     ProxyEndpoint:
       title: ProxyEndpoint
       type: object
@@ -768,6 +876,7 @@ components:
           example: https://example.com/foobar
           x-oapi-codegen-extra-tags: 
             validate: required,min=1,max=256,url
+            
     ProxyEndpointList:
       title: ProxyEndpointList
       description: List of name proxy endpoints
@@ -781,7 +890,11 @@ components:
             $ref: '#/components/schemas/ProxyEndpoint'
           x-oapi-codegen-extra-tags: 
             validate: omitempty,unique=Name,dive
-    ### CALLBACKS ###
+            
+    #
+    # Callbacks payload
+    #
+    
     BaseCallbackData:
       title: BaseCallbackData
       type: object
@@ -794,6 +907,7 @@ components:
           $ref: '#/components/schemas/ProjectID'
         'bot_id':
           $ref: '#/components/schemas/BotID'
+          
     BaseEvalCallbackData:
       title: BaseEvalCallbackData
       allOf:
@@ -805,26 +919,23 @@ components:
           properties:
             'eval_id':
               $ref: '#/components/schemas/EvalID'
+              
     EvalPhotoCallbackData:
       title: CallbackEvalPhotoBody
       allOf:
         - $ref: '#/components/schemas/BaseEvalCallbackData'
+        - $ref: '#/components/schemas/EvalPhoto'
         - title: EvalPhotoCallbackDataInner
           type: object
           required:
-            - origin
-            - photo_id
             - preview
           properties:
-            'origin':
-              $ref: '#/components/schemas/PhotoOriginEnum'
-            'photo_id':
-              $ref: '#/components/schemas/PhotoID'
             'preview':
               description: Base-64 encoded image containing low resolution photo
               type: string
               format: bytes
               example: '<base 64 encoded>'
+              
     EvalCancelledCallbackData:
       title: EvalCancelledCallbackData
       allOf:
@@ -832,15 +943,17 @@ components:
         - title: EvalCancelledCallbackDataInner
           type: object
           required:
-            - reason
+            - status
           properties:
-            'reason':
-              $ref: '#/components/schemas/CancelledEvalReason'
+            'status':
+              $ref: '#/components/schemas/EvalStatus'
+              
     EvalFinishedCallbackData:
       title: EvalFinishedCallbackData
       allOf:
         - $ref: '#/components/schemas/BaseEvalCallbackData'
         - $ref: '#/components/schemas/FinishedEvalData'
+        
     StorageCallbackData:
       title: StorageCallbackData
       allOf:
@@ -859,7 +972,13 @@ components:
               $ref: '#/components/schemas/StorageDomain'
             'transaction':
               $ref: '#/components/schemas/StorageTransaction'
+              
+  #
+  # Parameters
+  #
+  
   parameters:
+  
     BotID:
       name: 'botID'
       in: path
@@ -872,6 +991,7 @@ components:
         minimum: 1
         x-oapi-codegen-extra-tags: 
           validate: required
+          
     EvalID:
       name: 'evalID'
       in: path
@@ -884,6 +1004,7 @@ components:
         minimum: 1
         x-oapi-codegen-extra-tags: 
           validate: required
+          
     PhotoID:
       name: 'photoID'
       in: path
@@ -896,8 +1017,44 @@ components:
         example: dafc61a8277b44a3a8dedf197a862783
         x-oapi-codegen-extra-tags: 
           validate: required,len=32,hexadecimal
+    
+    CallbackJWT:
+      description: |
+        [Goldex signature](https://github.com/goldexrobot/core.integration.backend#callbacks-signature)
+      in: header
+      name: Authorization
+      required: true
+      schema:
+        type: string
+      example: 'Bearer {jwt.goes.here}'
+    
+    CallbackBotID:
+      description: Bot ID
+      name: 'X-CBOT-BOT-ID'
+      in: header
+      required: true
+      schema:
+        type: string
+      example: 42
+        
+    CallbackProjectID:
+      description: Project ID
+      name: 'X-CBOT-PROJECT-ID'
+      in: header
+      required: true
+      schema:
+        type: string
+      example: 1
+  #
+  # Responses
+  #
+  
   responses:
-    ### API ###
+    
+    #
+    # API
+    #
+    
     Empty:
       description: Empty successful response
       content:
@@ -926,13 +1083,18 @@ components:
               'message':
                 type: string
                 example: Error description
-    ### CALLBACKS ###
+    
+    #
+    # Callbacks expected responses
+    #
+    
     CallbackEmpty:
       description: Empty response
       content:
         application/json:
           schema:
             type: object
+            
     CallbackAllowance:
       description: Allow or forbid the operation
       content:
@@ -945,12 +1107,14 @@ components:
               'allowed':
                 description: Allow or not
                 type: boolean
+                
     CallbackFailed:
       description: Unsuccessful response forbids the operation automatically
       content:
         application/json:
           schema:
             type: object
+            
     CallbackProxyPayload:
       description: Any payload will be passed back to UI
       content:
@@ -959,7 +1123,17 @@ components:
             type: object
             example:
               'foo': 'bar'
+              
+  #
+  # Request bodies
+  #
+  
   requestBodies:
+  
+    #
+    # Callbacks bodies
+    #
+    
     CallbackEvalStarted:
       content:
         'application/json':
@@ -1001,199 +1175,126 @@ components:
                     type: object
                     example:
                       foo: bar
+  
+  #
+  # Callbacks
+  #
+  
   callbacks:
+  
     EvalCallbacks:
+    
       '/eval_started':
         post:
           summary: Evaluation is started
-          description: 'Callback will be sent just before the UI will get acknowledgment of evaluation successful start. Callback is **synchronous**, but the response to the callback does not matter and does not affect the flow'
+          description: |-
+            Callback will be sent just before the UI will get acknowledgment of evaluation successful start. 
+            
+            Callback is **synchronous**, but the response to the callback does not matter and does not affect the flow
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalStarted'
           responses:
             '200':
               $ref: '#/components/responses/CallbackEmpty'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+        
       '/eval_photo':
         post:
           summary: New photo is available
-          description: 'Callback will be sent once a new photo of evaluating item is received from a robot. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
+          description: |-
+            Callback will be sent once a new photo of evaluating item is received from a robot. 
+            
+            Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalPhoto'
           responses:
             '200':
               $ref: '#/components/responses/CallbackEmpty'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+                
       '/eval_cancelled':
         post:
           summary: Evaluation is cancelled or rejected
-          description: 'Callback will be sent on the next events: customer has interrupted the evaluation process, Goldex has rejected the item, some hardware has failed. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
+          description: |-
+            Callback will be sent on the next events: customer has interrupted the evaluation process, Goldex has rejected the item, some hardware has failed. 
+            
+            Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalCancelled'
           responses:
             '200':
               $ref: '#/components/responses/CallbackEmpty'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+                
       '/eval_finished':
         post:
           summary: Evaluation is successfully finished
-          description: 'Callback is sent when all the evaluation measurements are done and the control is passed to the business backend. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
+          description: |-
+            Callback is sent when all the evaluation measurements are done and the control is passed to the business backend. 
+            
+            Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
             $ref: '#/components/requestBodies/CallbackEvalFinished'
           responses:
             '200':
               $ref: '#/components/responses/CallbackEmpty'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+                
     StorageCallbacks:
+    
       '/storage_occupied':
         post:
           summary: Cell has been occupied
-          description: 'Cell is occupied in one of domain/flow: UI flow (like buyout/pawnshop), on-board bot dashboards. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
+          description: |-
+            Cell is occupied in one of domain/flow: UI flow (like buyout/pawnshop), on-board bot dashboards. 
+            
+            Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
             '200':
               $ref: '#/components/responses/CallbackEmpty'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+                
       '/storage_released':
         post:
           summary: Cell has been released
-          description: 'Cell is released in one of domain/flow: UI flow (like shop/pawnshop), on-board bot dashboards. Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours'
+          description: |-
+            Cell is released in one of domain/flow: UI flow (like shop/pawnshop), on-board bot dashboards. 
+            
+            Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
             '200':
               $ref: '#/components/responses/CallbackEmpty'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+                
       '/storage_can_occupy':
         post:
           summary: Cell is going to be occupied
-          description: Before the storage cell will be occupied with an item (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
+          description: |-
+            Before the storage cell gets being occupied with an item (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. 
+            
+            Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
@@ -1202,31 +1303,17 @@ components:
             'default':
               $ref: '#/components/responses/CallbackFailed'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+                
       '/storage_can_release':
         post:
           summary: Cell is going to be released
-          description: Before the storage cell will be released (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
+          description: |-
+            Before the storage cell gets being released (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. 
+            
+            Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
           requestBody:
             $ref: '#/components/requestBodies/CallbackStorageCellEvent'
           responses:
@@ -1235,66 +1322,39 @@ components:
             'default':
               $ref: '#/components/responses/CallbackFailed'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+                
     ProxyCallbacks:
+    
       '/{endpoint}':
         post:
           summary: Named UI endpoints
-          description: 'Named UI endpoint to proxy via Goldex to the business backend side'
+          description: Named UI endpoint to proxy via Goldex to the business backend side
           requestBody:
             $ref: '#/components/requestBodies/CallbackProxy'
           responses:
             '200':
               $ref: '#/components/responses/CallbackProxyPayload'
           parameters:
-            - description: 'Сallbacks [signed by Goldex](https://github.com/goldexrobot/core.integration.backend#callbacks-signature) with JWT and per-project key'
-              name: Authorization
-              in: header
-              required: true
-              schema:
-                type: string
-                example: 'Bearer *JWT*'
-            - description: Bot ID
-              name: 'X-CBOT-BOT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '42'
-            - description: Project ID
-              name: 'X-CBOT-PROJECT-ID'
-              in: header
-              required: false
-              schema:
-                type: string
-                example: '1'
+            - $ref: '#/components/parameters/CallbackJWT'
+            - $ref: '#/components/parameters/CallbackProjectID'
+            - $ref: '#/components/parameters/CallbackBotID'
+  
+  #
+  # Security
+  #
+  
   securitySchemes:
     http:
       description: 'Basic HTTP auth: project login and secret'
       type: http
       scheme: basic
+
 security:
   - http: []
+
 servers:
   - url: '{scheme}://{host}{path}'
     description: 'API base'
@@ -1311,4 +1371,3 @@ servers:
       path:
         description: Path
         default: /api/v1
-
