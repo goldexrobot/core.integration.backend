@@ -4,13 +4,13 @@ info:
   title: Goldex Robot API
   description: |-
     The API is Goldex Robot side API business backend should call to. 
-    
+
     Actual servers are omitted for a security reason.
-  version: '1.1.0'
+  version: "1.1.0"
   contact:
     name: Docs at Github
-    url: 'https://github.com/goldexrobot/core.integration.backend'
-    
+    url: "https://github.com/goldexrobot/core.integration.backend"
+
 tags:
   - name: bot
     description: Bots state and control
@@ -22,57 +22,56 @@ tags:
     description: Metal prices
   - name: callback
     description: Business backend callbacks and named proxy endpoints
-    
+
 paths:
-  
   #
   # Bots
   #
-  
-  '/bots':
+
+  "/bots":
     get:
       summary: Available bots
       description: |
         Returns a list of bots **currently** available for the current project/integration.
-        
+
         The list is not fixed as a bot can be moved to another project.
       operationId: getBots
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BotInfo'
-        'default':
-          $ref: '#/components/responses/Error'
+                  $ref: "#/components/schemas/BotInfo"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - bot
-  
-  '/bots/{botID}':
+
+  "/bots/{botID}":
     parameters:
-      - $ref: '#/components/parameters/BotID'
+      - $ref: "#/components/parameters/BotID"
     get:
       summary: Bot info
       description: Describes a bot by ID.
       operationId: getBot
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BotInfo'
-        'default':
-          $ref: '#/components/responses/Error'
+                $ref: "#/components/schemas/BotInfo"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - bot
-  
-  '/bots/{botID}/command':
+
+  "/bots/{botID}/command":
     parameters:
-      - $ref: '#/components/parameters/BotID'
+      - $ref: "#/components/parameters/BotID"
     post:
       summary: Send a command
       description: Sends a predefined command to the bot. This allows a manager to control the bot remotely.
@@ -83,112 +82,112 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BotCommand'
+              $ref: "#/components/schemas/BotCommand"
       responses:
-        '200':
-          $ref: '#/components/responses/Empty'
-        'default':
-          $ref: '#/components/responses/Error'
+        "200":
+          $ref: "#/components/responses/Empty"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - bot
-  
-  '/bots/{botID}/storage':
+
+  "/bots/{botID}/storage":
     parameters:
-      - $ref: '#/components/parameters/BotID'
+      - $ref: "#/components/parameters/BotID"
     get:
       summary: Storage state
       description: Returns a state of the storage of the bot.
       operationId: getBotStorage
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BotStorageState'
-        'default':
-          $ref: '#/components/responses/Error'
+                $ref: "#/components/schemas/BotStorageState"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - bot
-        
+
   #
   # Evals
   #
-  
-  '/evals/{evalID}':
+
+  "/evals/{evalID}":
     parameters:
-      - $ref: '#/components/parameters/EvalID'
+      - $ref: "#/components/parameters/EvalID"
     get:
       summary: Evaluation state
       description: Retrieves evaluation data specified by ID.
       operationId: getEval
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EvalData'
-        'default':
-          $ref: '#/components/responses/Error'
+                $ref: "#/components/schemas/EvalData"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - eval
-  
-  '/evals/{evalID}/photos':
+
+  "/evals/{evalID}/photos":
     parameters:
-      - $ref: '#/components/parameters/EvalID'
+      - $ref: "#/components/parameters/EvalID"
     get:
       summary: Evaluation photos
       description: Returns a list of photo IDs belong to the evaluation.
       operationId: getEvalPhotos
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EvalPhoto'
-        'default':
-          $ref: '#/components/responses/Error'
+                  $ref: "#/components/schemas/EvalPhoto"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - eval
-  
+
   #
   # Files
   #
-  
-  '/files/photo/{photoID}':
+
+  "/files/photo/{photoID}":
     parameters:
-      - $ref: '#/components/parameters/PhotoID'
+      - $ref: "#/components/parameters/PhotoID"
     get:
       summary: Photo content
       description: Returns a content of the photo specified by ID.
       operationId: getPhotoFile
       responses:
-        '200':
+        "200":
           description: Image bytes with a corresponding `Content-Type` header
           content:
             image/jpeg:
               schema:
                 type: string
                 format: binary
-                example: '<JPEG image bytes>'
-        'default':
-          $ref: '#/components/responses/Error'
+                example: "<JPEG image bytes>"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - file
-  
+
   #
   # Prices
   #
-  
-  '/prices/lme/{metal}':
+
+  "/prices/lme/{metal}":
     parameters:
-      - name: 'metal'
+      - name: "metal"
         in: path
-        description: 'Metal'
+        description: "Metal"
         required: true
         schema:
           $ref: "#/components/schemas/Alloy"
@@ -197,24 +196,24 @@ paths:
       description: Returns current metal price **per gram** trading at [London Metal Exchange](https://www.lme.com/).
       operationId: getPriceLME
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MetalPrice'
-        'default':
-          $ref: '#/components/responses/Error'
+                  $ref: "#/components/schemas/MetalPrice"
+        "default":
+          $ref: "#/components/responses/Error"
       tags:
         - price
-  
+
   #
   # Callbacks binding
   #
-  
-  '/callbacks':
+
+  "/callbacks":
     post:
       summary: Set callbacks
       description: Sets callback endpoints to listen to events on business backend side. <br>Send an empty object to clear callbacks.<br><br>Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). Query part of the endpoint URL will be dropped.
@@ -225,24 +224,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CallbackBinding'
+              $ref: "#/components/schemas/CallbackBinding"
       responses:
-        '200':
-          $ref: '#/components/responses/Empty'
-        'default':
-          $ref: '#/components/responses/Error'
+        "200":
+          $ref: "#/components/responses/Empty"
+        "default":
+          $ref: "#/components/responses/Error"
       callbacks:
-        'eval':
-          $ref: '#/components/callbacks/EvalCallbacks'
-        'storage':
-          $ref: '#/components/callbacks/StorageCallbacks'
+        "eval":
+          $ref: "#/components/callbacks/EvalCallbacks"
+        "storage":
+          $ref: "#/components/callbacks/StorageCallbacks"
       tags:
         - callback
-  
-  '/proxy':
+
+  "/proxy":
     post:
       summary: Set proxy endpoints for UI
-      description: 'Sets a list of named endpoints for UI. The UI will make requests by name and Goldex will proxy these requests to the business backend endpoints. <br>Send an empty object to clear the list.<br><br>Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). Query part of the endpoint URL will be dropped.'
+      description: "Sets a list of named endpoints for UI. The UI will make requests by name and Goldex will proxy these requests to the business backend endpoints. <br>Send an empty object to clear the list.<br><br>Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). Query part of the endpoint URL will be dropped."
       operationId: setProxyEndpoints
       requestBody:
         description: Endpoints mapping (or an empty list)
@@ -250,47 +249,45 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProxyEndpointList'
+              $ref: "#/components/schemas/ProxyEndpointList"
       responses:
-        '200':
-          $ref: '#/components/responses/Empty'
-        'default':
-          $ref: '#/components/responses/Error'
+        "200":
+          $ref: "#/components/responses/Empty"
+        "default":
+          $ref: "#/components/responses/Error"
       callbacks:
-        'eval':
-          $ref: '#/components/callbacks/ProxyCallbacks'
+        "eval":
+          $ref: "#/components/callbacks/ProxyCallbacks"
       tags:
         - callback
 
 components:
-
   schemas:
-  
     #
     # Primitives
     #
-    
+
     ProjectID:
       title: ProjectID
       description: Project ID
       type: integer
       format: uint64
       example: 1
-      
+
     BotID:
       title: BotID
       description: Bot ID
       type: integer
       format: uint64
       example: 42
-      
+
     EvalID:
       title: EvalID
       description: Evaluation ID
       type: integer
       format: uint64
       example: 1337
-      
+
     PhotoOriginEnum:
       title: PhotoOriginEnum
       description: An origin the photo comes from. `item` is the item photo, `outer` - photo from the outer camera
@@ -302,7 +299,7 @@ components:
       maxLength: 8
       x-oapi-codegen-extra-tags:
         validate: required,min=1,max=8,alpha,lowercase
-        
+
     PhotoID:
       title: PhotoID
       description: Photo ID
@@ -310,9 +307,9 @@ components:
       minLength: 32
       maxLength: 32
       example: dafc61a8277b44a3a8dedf197a862783
-      x-oapi-codegen-extra-tags: 
+      x-oapi-codegen-extra-tags:
         validate: required,len=32,hexadecimal
-        
+
     Alloy:
       title: Alloy
       description: Metal alloy
@@ -322,9 +319,9 @@ components:
       enum:
         - au
         - ag
-      x-oapi-codegen-extra-tags: 
+      x-oapi-codegen-extra-tags:
         validate: required,len=2,alpha,lowercase
-        
+
     SpectrumItem:
       title: SpectrumItem
       type: object
@@ -332,22 +329,22 @@ components:
         - comp
         - cont
       properties:
-        'comp':
+        "comp":
           type: string
           minLength: 1
           maxLength: 2
           example: cu
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: min=1,max=2,alpha,lowercase
-        'cont':
+        "cont":
           type: number
           format: double
           minimum: 0
           maximum: 100
           example: 13.37
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: min=0,max=100
-            
+
     StorageCell:
       title: StorageCell
       description: Cell address
@@ -355,9 +352,9 @@ components:
       minLength: 2
       maxLength: 4
       example: A9
-      x-oapi-codegen-extra-tags: 
+      x-oapi-codegen-extra-tags:
         validate: required,min=2,max=4,alphanum,uppercase
-        
+
     StorageOrigin:
       title: StorageOrigin
       description: An origin of the change of the storage cell
@@ -384,23 +381,23 @@ components:
         - custom
       x-oapi-codegen-extra-tags:
         validate: required,min=1,max=16,oneof=buyout shop pawnshop custom
-        
+
     StorageCellState:
       title: CellState
       description: Cell state
       type: object
-      required: 
+      required:
         - cell
         - domain
         - transaction
       properties:
-        'cell':
-          $ref: '#/components/schemas/StorageCell'
-        'domain':
-          $ref: '#/components/schemas/StorageDomain'
-        'transaction':
-          $ref: '#/components/schemas/StorageTransaction'
-          
+        "cell":
+          $ref: "#/components/schemas/StorageCell"
+        "domain":
+          $ref: "#/components/schemas/StorageDomain"
+        "transaction":
+          $ref: "#/components/schemas/StorageTransaction"
+
     StorageTransaction:
       title: StorageTransaction
       description: Unique ID of the cell state change
@@ -410,7 +407,7 @@ components:
       example: 240702e1e8be42d39137c1d802dd6941
       x-oapi-codegen-extra-tags:
         validate: required,len=32,hexadecimal
-        
+
     EvalStatus:
       title: EvalStatus
       description: Evaluation state
@@ -452,7 +449,7 @@ components:
       example: tungsten_in_gold
       x-oapi-codegen-extra-tags:
         validate: required,min=1,max=32,lowercase
-    
+
     FinishedEvalData:
       title: FinishedEvalData
       type: object
@@ -468,9 +465,9 @@ components:
         - warnings
         - weight
       properties:
-        'alloy':
+        "alloy":
           $ref: "#/components/schemas/Alloy"
-        'alloy_content':
+        "alloy_content":
           description: Content of the metal in spectrum in percents
           type: number
           format: double
@@ -479,8 +476,8 @@ components:
           example: 99.98
           x-oapi-codegen-extra-tags:
             validate: min=0,max=100
-        'confidence':
-          description: 'Overall result confidence/score [0..1], where 1 - is fully confident result and a value below 0.8 is alarming.'
+        "confidence":
+          description: "Overall result confidence/score [0..1], where 1 - is fully confident result and a value below 0.8 is alarming."
           type: number
           format: double
           minimum: 0
@@ -488,7 +485,7 @@ components:
           example: 0.889
           x-oapi-codegen-extra-tags:
             validate: min=0,max=1
-        'fineness_carat':
+        "fineness_carat":
           description: Detected fineness in carats
           type: string
           minLength: 2
@@ -496,8 +493,8 @@ components:
           example: 24K
           x-oapi-codegen-extra-tags:
             validate: min=2,max=3,alphanum,uppercase
-        'fineness_millesimal':
-          description: 'Detected millesimal fineness. Example: 585 stands for 58.5%, 999 for 99.9%, 9999 for 99.99%'
+        "fineness_millesimal":
+          description: "Detected millesimal fineness. Example: 585 stands for 58.5%, 999 for 99.9%, 9999 for 99.99%"
           type: integer
           format: int32
           minimum: 100
@@ -505,30 +502,30 @@ components:
           example: 585
           x-oapi-codegen-extra-tags:
             validate: min=100,max=9999
-        'fineness_purity':
+        "fineness_purity":
           description: Detected fineness purity in percents
           type: number
           format: double
           minimum: 10
           maximum: 100
           example: 99.99
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: min=10,max=100
-        'risky':
+        "risky":
           description: Goldex decision about the evaluation
           type: boolean
           example: true
-        'spectrum':
+        "spectrum":
           description: Spectrum data
           type: array
           items:
             $ref: "#/components/schemas/SpectrumItem"
-        'warnings':
-          description: 'Warnings that should help with decision. Usually it is risky to accept the item if a warning is presented'
+        "warnings":
+          description: "Warnings that should help with decision. Usually it is risky to accept the item if a warning is presented"
           type: array
           items:
             $ref: "#/components/schemas/EvalWarning"
-        'weight':
+        "weight":
           description: Item weight in grams
           type: number
           format: double
@@ -536,11 +533,11 @@ components:
           example: 3.141
           x-oapi-codegen-extra-tags:
             validate: required,min=0.001
-        
+
     #
     # Bots
     #
-    
+
     BotInfo:
       title: BotInfo
       description: Bot info data
@@ -549,17 +546,17 @@ components:
         - id
         - serial
       properties:
-        'id':
-          $ref: '#/components/schemas/BotID'
-        'serial':
+        "id":
+          $ref: "#/components/schemas/BotID"
+        "serial":
           description: Serial number
           type: string
           minLength: 6
           maxLength: 9
           example: CB-616
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: required,min=6,max=9,uppercase
-            
+
     BotCommand:
       title: BotCommand
       description: Command to send to the bot
@@ -567,7 +564,7 @@ components:
       required:
         - name
       properties:
-        'name':
+        "name":
           type: string
           description: Predefined command name
           enum:
@@ -581,7 +578,7 @@ components:
           example: mode_operational
           x-oapi-codegen-extra-tags:
             validate: required,min=1,max=32,lowercase
-            
+
     BotStorageState:
       title: BotStorageState
       description: Storage state description
@@ -591,38 +588,38 @@ components:
         - total
         - available
       properties:
-        'occupied_cells':
+        "occupied_cells":
           description: Occupied cells
           type: array
           minItems: 0
           maxItems: 9999
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: min=0,max=9999
           items:
-            $ref: '#/components/schemas/StorageCellState'
-        'total':
+            $ref: "#/components/schemas/StorageCellState"
+        "total":
           description: Total available cells (-1 if unknown)
           type: integer
           format: int32
           minimum: -1
           maximum: 9999
           example: -1
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: min=-1,max=9999
-        'available':
+        "available":
           description: Available/free cells (-1 if unknown)
           type: integer
           format: int32
           minimum: -1
           maximum: 9999
           example: -1
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: min=-1,max=9999
-            
-    # 
+
+    #
     # Evals
     #
-    
+
     EvalPhoto:
       title: EvalPhoto
       description: List of evaluation photos
@@ -633,17 +630,17 @@ components:
         - origin
         - uploaded_at
       properties:
-        'id':
-          $ref: '#/components/schemas/PhotoID'
-        'preview_id':
-          $ref: '#/components/schemas/PhotoID'
-        'origin':
-          $ref: '#/components/schemas/PhotoOriginEnum'
-        'uploaded_at':
+        "id":
+          $ref: "#/components/schemas/PhotoID"
+        "preview_id":
+          $ref: "#/components/schemas/PhotoID"
+        "origin":
+          $ref: "#/components/schemas/PhotoOriginEnum"
+        "uploaded_at":
           description: Time of upload (RFC 3339)
           type: string
           format: date-time
-          
+
     EvalData:
       title: EvalData
       description: Evaluation data
@@ -654,38 +651,38 @@ components:
         - started_at
         - updated_at
       properties:
-        'bot_id':
-          $ref: '#/components/schemas/BotID'
-        'data':
-          $ref: '#/components/schemas/EvalDataCase'
-        'started_at':
+        "bot_id":
+          $ref: "#/components/schemas/BotID"
+        "data":
+          $ref: "#/components/schemas/EvalDataCase"
+        "started_at":
           description: Time of start (RFC 3339)
           type: string
           format: date-time
-        'updated_at':
+        "updated_at":
           description: Time of last update (RFC 3339)
           type: string
           format: date-time
-          
+
     EvalDataCase:
       title: EvalDataCase
-      description: 'Payload depending on evaluation status'
+      description: "Payload depending on evaluation status"
       type: object
       oneOf:
-        - $ref: '#/components/schemas/EvalDataCaseStarted'
-        - $ref: '#/components/schemas/EvalDataCaseFinished'
-        - $ref: '#/components/schemas/EvalDataCaseRejected'
-        - $ref: '#/components/schemas/EvalDataCaseFailed'
-        - $ref: '#/components/schemas/EvalDataCaseCancelled'
+        - $ref: "#/components/schemas/EvalDataCaseStarted"
+        - $ref: "#/components/schemas/EvalDataCaseFinished"
+        - $ref: "#/components/schemas/EvalDataCaseRejected"
+        - $ref: "#/components/schemas/EvalDataCaseFailed"
+        - $ref: "#/components/schemas/EvalDataCaseCancelled"
       discriminator:
         propertyName: status
         mapping:
-          'started': '#/components/schemas/EvalDataCaseStarted'
-          'finished': '#/components/schemas/EvalDataCaseFinished'
-          'rejected': '#/components/schemas/EvalDataCaseRejected'
-          'failed': '#/components/schemas/EvalDataCaseFailed'
-          'cancelled': '#/components/schemas/EvalDataCaseCancelled'
-          
+          "started": "#/components/schemas/EvalDataCaseStarted"
+          "finished": "#/components/schemas/EvalDataCaseFinished"
+          "rejected": "#/components/schemas/EvalDataCaseRejected"
+          "failed": "#/components/schemas/EvalDataCaseFailed"
+          "cancelled": "#/components/schemas/EvalDataCaseCancelled"
+
     EvalDataCaseStarted:
       title: EvalDataCaseStarted
       description: Started evaluation data
@@ -693,8 +690,8 @@ components:
       required:
         - status
       properties:
-        'status':
-          $ref: '#/components/schemas/EvalStatus'
+        "status":
+          $ref: "#/components/schemas/EvalStatus"
       discriminator:
         propertyName: status
 
@@ -707,12 +704,12 @@ components:
           required:
             - status
           properties:
-            'status':
-              $ref: '#/components/schemas/EvalStatus'
-        - $ref: '#/components/schemas/FinishedEvalData'
+            "status":
+              $ref: "#/components/schemas/EvalStatus"
+        - $ref: "#/components/schemas/FinishedEvalData"
       discriminator:
         propertyName: status
-    
+
     EvalDataCaseRejected:
       title: EvalDataCaseRejected
       description: Evaluation is rejected by Goldex
@@ -721,10 +718,10 @@ components:
         - status
         - reason
       properties:
-        'status':
-          $ref: '#/components/schemas/EvalStatus'
-        'reason':
-          $ref: '#/components/schemas/EvalRejection'
+        "status":
+          $ref: "#/components/schemas/EvalStatus"
+        "reason":
+          $ref: "#/components/schemas/EvalRejection"
       discriminator:
         propertyName: status
 
@@ -735,8 +732,8 @@ components:
       required:
         - status
       properties:
-        'status':
-          $ref: '#/components/schemas/EvalStatus'
+        "status":
+          $ref: "#/components/schemas/EvalStatus"
       discriminator:
         propertyName: status
 
@@ -747,17 +744,15 @@ components:
       required:
         - status
       properties:
-        'status':
-          $ref: '#/components/schemas/EvalStatus'
+        "status":
+          $ref: "#/components/schemas/EvalStatus"
       discriminator:
         propertyName: status
-        
-    
-        
+
     #
     # Prices
     #
-    
+
     MetalPrice:
       title: MetalPrice
       description: Price in currency
@@ -766,7 +761,7 @@ components:
         - cur
         - val
       properties:
-        'cur':
+        "cur":
           description: Currency (ISO 4217)
           type: string
           minLength: 3
@@ -774,18 +769,18 @@ components:
           example: USD
           x-oapi-codegen-extra-tags:
             validate: required,len=3,iso4217
-        'val':
+        "val":
           description: Value with 2 decimal places
           type: string
           minLength: 4
           example: 13.37
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: required,number,gt=0
-            
+
     #
     # Callbacks binding
     #
-    
+
     CallbackBinding:
       title: CallbackBinding
       description: Callbacks binding
@@ -800,71 +795,71 @@ components:
         - storage_can_occupy
         - storage_can_release
       properties:
-        'eval_started':
+        "eval_started":
           description: Evaluation is started
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-        'eval_photo':
+        "eval_photo":
           description: Evaluation has a new photo
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-        'eval_cancelled':
+        "eval_cancelled":
           description: Evaluation is cancelled or rejected
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-        'eval_finished':
+        "eval_finished":
           description: Evaluation is finished successfully
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-        'storage_occupied':
+        "storage_occupied":
           description: Storage cell is occupied
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-        'storage_released':
+        "storage_released":
           description: Storage cell is released
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-        'storage_can_occupy':
+        "storage_can_occupy":
           description: Pre-occupation cell check
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-        'storage_can_release':
+        "storage_can_release":
           description: Pre-release cell check
           type: string
           format: uri
           maxLength: 256
           example: www.example.com
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: omitempty,max=256,url
-            
+
     ProxyEndpoint:
       title: ProxyEndpoint
       type: object
@@ -872,22 +867,22 @@ components:
         - name
         - endpoint
       properties:
-        'name':
+        "name":
           type: string
           minLength: 1
           maxLength: 64
           example: foobar
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: required,min=1,max=64
-        'endpoint':
+        "endpoint":
           type: string
           format: uri
           minimum: 1
           maximum: 256
           example: https://example.com/foobar
-          x-oapi-codegen-extra-tags: 
+          x-oapi-codegen-extra-tags:
             validate: required,min=1,max=256,url
-            
+
     ProxyEndpointList:
       title: ProxyEndpointList
       description: List of name proxy endpoints
@@ -895,110 +890,109 @@ components:
       required:
         - list
       properties:
-        'list':
+        "list":
           type: array
           items:
-            $ref: '#/components/schemas/ProxyEndpoint'
-          x-oapi-codegen-extra-tags: 
+            $ref: "#/components/schemas/ProxyEndpoint"
+          x-oapi-codegen-extra-tags:
             validate: omitempty,unique=Name,dive
-            
+
     #
     # Callbacks payload
     #
-    
+
     BaseCallbackData:
       title: BaseCallbackData
       type: object
-      required: 
+      required:
         - project_id
         - bot_id
         - eval_id
       properties:
-        'project_id':
-          $ref: '#/components/schemas/ProjectID'
-        'bot_id':
-          $ref: '#/components/schemas/BotID'
-          
+        "project_id":
+          $ref: "#/components/schemas/ProjectID"
+        "bot_id":
+          $ref: "#/components/schemas/BotID"
+
     BaseEvalCallbackData:
       title: BaseEvalCallbackData
       allOf:
-        - $ref: '#/components/schemas/BaseCallbackData'
+        - $ref: "#/components/schemas/BaseCallbackData"
         - title: BaseEvalCallbackDataInner
           type: object
-          required: 
+          required:
             - eval_id
           properties:
-            'eval_id':
-              $ref: '#/components/schemas/EvalID'
-              
+            "eval_id":
+              $ref: "#/components/schemas/EvalID"
+
     EvalPhotoCallbackData:
       title: CallbackEvalPhotoBody
       allOf:
-        - $ref: '#/components/schemas/BaseEvalCallbackData'
-        - $ref: '#/components/schemas/EvalPhoto'
+        - $ref: "#/components/schemas/BaseEvalCallbackData"
+        - $ref: "#/components/schemas/EvalPhoto"
         - title: EvalPhotoCallbackDataInner
           type: object
           required:
             - preview
           properties:
-            'preview':
+            "preview":
               description: Base-64 encoded image containing low resolution photo
               type: string
               format: bytes
-              example: '<base 64 encoded>'
-              
+              example: "<base 64 encoded>"
+
     EvalCancelledCallbackData:
       title: EvalCancelledCallbackData
       allOf:
-        - $ref: '#/components/schemas/BaseEvalCallbackData'
+        - $ref: "#/components/schemas/BaseEvalCallbackData"
         - title: EvalCancelledCallbackDataInner
           type: object
           required:
             - status
           properties:
-            'status':
-              $ref: '#/components/schemas/EvalStatus'
-              
+            "status":
+              $ref: "#/components/schemas/EvalStatus"
+
     EvalFinishedCallbackData:
       title: EvalFinishedCallbackData
       allOf:
-        - $ref: '#/components/schemas/BaseEvalCallbackData'
-        - $ref: '#/components/schemas/FinishedEvalData'
-        
+        - $ref: "#/components/schemas/BaseEvalCallbackData"
+        - $ref: "#/components/schemas/FinishedEvalData"
+
     StorageCallbackData:
       title: StorageCallbackData
       allOf:
-        - $ref: '#/components/schemas/BaseCallbackData'
+        - $ref: "#/components/schemas/BaseCallbackData"
         - title: StorageCallbackDataInner
           type: object
-          required: 
+          required:
             - cell
             - origin
             - domain
             - transaction
             - changed_at
           properties:
-            'cell':
-              $ref: '#/components/schemas/StorageCell'
-            'origin':
-              $ref: '#/components/schemas/StorageOrigin'
-            'domain':
-              $ref: '#/components/schemas/StorageDomain'
-            'transaction':
-              $ref: '#/components/schemas/StorageTransaction'
-            'changed_at':
+            "cell":
+              $ref: "#/components/schemas/StorageCell"
+            "origin":
+              $ref: "#/components/schemas/StorageOrigin"
+            "domain":
+              $ref: "#/components/schemas/StorageDomain"
+            "transaction":
+              $ref: "#/components/schemas/StorageTransaction"
+            "changed_at":
               description: Time of the change (RFC 3339)
               type: string
               format: date-time
-  
+
   #
   # Parameters
   #
-  
+
   parameters:
-  
     BotID:
-      name: 'botID'
+      name: "botID"
       in: path
       description: Bot ID
       required: true
@@ -1007,11 +1001,12 @@ components:
         format: uint64
         example: 42
         minimum: 1
-        x-oapi-codegen-extra-tags: 
+        x-oapi-codegen-extra-tags:
           validate: required
-          
+      x-go-name: BotIDParam
+
     EvalID:
-      name: 'evalID'
+      name: "evalID"
       in: path
       description: Evaluation ID
       required: true
@@ -1020,11 +1015,12 @@ components:
         format: uint64
         example: 1337
         minimum: 1
-        x-oapi-codegen-extra-tags: 
+        x-oapi-codegen-extra-tags:
           validate: required
-          
+      x-go-name: EvalIDParam
+
     PhotoID:
-      name: 'photoID'
+      name: "photoID"
       in: path
       description: Photo/file ID
       required: true
@@ -1033,9 +1029,10 @@ components:
         minLength: 32
         maxLength: 32
         example: dafc61a8277b44a3a8dedf197a862783
-        x-oapi-codegen-extra-tags: 
+        x-oapi-codegen-extra-tags:
           validate: required,len=32,hexadecimal
-    
+      x-go-name: PhotoIDParam
+
     CallbackJWT:
       description: |
         [Goldex signature](https://github.com/goldexrobot/core.integration.backend#callbacks-signature)
@@ -1044,20 +1041,20 @@ components:
       required: true
       schema:
         type: string
-      example: 'Bearer {jwt.goes.here}'
-    
+      example: "Bearer {jwt.goes.here}"
+
     CallbackBotID:
       description: Bot ID
-      name: 'X-CBOT-BOT-ID'
+      name: "X-CBOT-BOT-ID"
       in: header
       required: true
       schema:
         type: string
       example: 42
-        
+
     CallbackProjectID:
       description: Project ID
-      name: 'X-CBOT-PROJECT-ID'
+      name: "X-CBOT-PROJECT-ID"
       in: header
       required: true
       schema:
@@ -1066,13 +1063,12 @@ components:
   #
   # Responses
   #
-  
+
   responses:
-    
     #
     # API
     #
-    
+
     Empty:
       description: Empty successful response
       content:
@@ -1093,26 +1089,26 @@ components:
               - status
               - message
             properties:
-              'status':
+              "status":
                 type: integer
                 format: int32
                 description: Status code
                 example: 404
-              'message':
+              "message":
                 type: string
                 example: Error description
-    
+
     #
     # Callbacks expected responses
     #
-    
+
     CallbackEmpty:
       description: Empty response
       content:
         application/json:
           schema:
             type: object
-            
+
     CallbackAllowance:
       description: Allow or forbid the operation
       content:
@@ -1122,17 +1118,17 @@ components:
             required:
               - allowed
             properties:
-              'allowed':
+              "allowed":
                 description: Allow or not
                 type: boolean
-                
+
     CallbackFailed:
       description: Unsuccessful response forbids the operation automatically
       content:
         application/json:
           schema:
             type: object
-            
+
     CallbackProxyPayload:
       description: Any payload will be passed back to UI
       content:
@@ -1140,233 +1136,228 @@ components:
           schema:
             type: object
             example:
-              'foo': 'bar'
-              
+              "foo": "bar"
+
   #
   # Request bodies
   #
-  
+
   requestBodies:
-  
     #
     # Callbacks bodies
     #
-    
+
     CallbackEvalStarted:
       content:
-        'application/json':
+        "application/json":
           schema:
-            $ref: '#/components/schemas/BaseEvalCallbackData'
+            $ref: "#/components/schemas/BaseEvalCallbackData"
     CallbackEvalPhoto:
       content:
-        'application/json':
+        "application/json":
           schema:
-            $ref: '#/components/schemas/EvalPhotoCallbackData'
+            $ref: "#/components/schemas/EvalPhotoCallbackData"
     CallbackEvalCancelled:
       content:
-        'application/json':
+        "application/json":
           schema:
-            $ref: '#/components/schemas/EvalCancelledCallbackData'
+            $ref: "#/components/schemas/EvalCancelledCallbackData"
     CallbackEvalFinished:
       content:
-        'application/json':
+        "application/json":
           schema:
-            $ref: '#/components/schemas/EvalFinishedCallbackData'
+            $ref: "#/components/schemas/EvalFinishedCallbackData"
     CallbackStorageCellEvent:
       content:
-        'application/json':
+        "application/json":
           schema:
-            $ref: '#/components/schemas/StorageCallbackData'
+            $ref: "#/components/schemas/StorageCallbackData"
     CallbackProxy:
       content:
-        'application/json':
+        "application/json":
           schema:
             allOf:
-              - $ref: '#/components/schemas/BaseCallbackData'
+              - $ref: "#/components/schemas/BaseCallbackData"
               - title: CallbackProxyPayload
                 type: object
                 required:
                   - payload
                 properties:
-                  'payload':
+                  "payload":
                     description: UI provided payload
                     type: object
                     example:
                       foo: bar
-  
+
   #
   # Callbacks
   #
-  
+
   callbacks:
-  
     EvalCallbacks:
-    
-      '/eval_started':
+      "/eval_started":
         post:
           summary: Evaluation is started
           description: |-
             Callback will be sent just before the UI will get acknowledgment of evaluation successful start. 
-            
+
             Callback is **synchronous**, but the response to the callback does not matter and does not affect the flow
           requestBody:
-            $ref: '#/components/requestBodies/CallbackEvalStarted'
+            $ref: "#/components/requestBodies/CallbackEvalStarted"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackEmpty'
+            "200":
+              $ref: "#/components/responses/CallbackEmpty"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-        
-      '/eval_photo':
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
+      "/eval_photo":
         post:
           summary: New photo is available
           description: |-
             Callback will be sent once a new photo of evaluating item is received from a robot. 
-            
+
             Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
-            $ref: '#/components/requestBodies/CallbackEvalPhoto'
+            $ref: "#/components/requestBodies/CallbackEvalPhoto"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackEmpty'
+            "200":
+              $ref: "#/components/responses/CallbackEmpty"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-                
-      '/eval_cancelled':
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
+      "/eval_cancelled":
         post:
           summary: Evaluation is cancelled or rejected
           description: |-
             Callback will be sent on the next events: customer has interrupted the evaluation process, Goldex has rejected the item, some hardware has failed. 
-            
+
             Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
-            $ref: '#/components/requestBodies/CallbackEvalCancelled'
+            $ref: "#/components/requestBodies/CallbackEvalCancelled"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackEmpty'
+            "200":
+              $ref: "#/components/responses/CallbackEmpty"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-                
-      '/eval_finished':
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
+      "/eval_finished":
         post:
           summary: Evaluation is successfully finished
           description: |-
             Callback is sent when all the evaluation measurements are done and the control is passed to the business backend. 
-            
+
             Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
-            $ref: '#/components/requestBodies/CallbackEvalFinished'
+            $ref: "#/components/requestBodies/CallbackEvalFinished"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackEmpty'
+            "200":
+              $ref: "#/components/responses/CallbackEmpty"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-                
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
     StorageCallbacks:
-    
-      '/storage_occupied':
+      "/storage_occupied":
         post:
           summary: Cell has been occupied
           description: |-
             Cell is occupied in one of domain/flow: UI flow (like buyout/pawnshop), on-board bot dashboards. 
-            
+
             Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
-            $ref: '#/components/requestBodies/CallbackStorageCellEvent'
+            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackEmpty'
+            "200":
+              $ref: "#/components/responses/CallbackEmpty"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-                
-      '/storage_released':
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
+      "/storage_released":
         post:
           summary: Cell has been released
           description: |-
             Cell is released in one of domain/flow: UI flow (like shop/pawnshop), on-board bot dashboards. 
-            
+
             Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
           requestBody:
-            $ref: '#/components/requestBodies/CallbackStorageCellEvent'
+            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackEmpty'
+            "200":
+              $ref: "#/components/responses/CallbackEmpty"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-                
-      '/storage_can_occupy':
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
+      "/storage_can_occupy":
         post:
           summary: Cell is going to be occupied
           description: |-
             Before the storage cell gets being occupied with an item (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. 
-            
+
             Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
           requestBody:
-            $ref: '#/components/requestBodies/CallbackStorageCellEvent'
+            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackAllowance'
-            'default':
-              $ref: '#/components/responses/CallbackFailed'
+            "200":
+              $ref: "#/components/responses/CallbackAllowance"
+            "default":
+              $ref: "#/components/responses/CallbackFailed"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-                
-      '/storage_can_release':
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
+      "/storage_can_release":
         post:
           summary: Cell is going to be released
           description: |-
             Before the storage cell gets being released (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. 
-            
+
             Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
           requestBody:
-            $ref: '#/components/requestBodies/CallbackStorageCellEvent'
+            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackAllowance'
-            'default':
-              $ref: '#/components/responses/CallbackFailed'
+            "200":
+              $ref: "#/components/responses/CallbackAllowance"
+            "default":
+              $ref: "#/components/responses/CallbackFailed"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-                
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
     ProxyCallbacks:
-    
-      '/{endpoint}':
+      "/{endpoint}":
         post:
           summary: Named UI endpoints
           description: Named UI endpoint to proxy via Goldex to the business backend side
           requestBody:
-            $ref: '#/components/requestBodies/CallbackProxy'
+            $ref: "#/components/requestBodies/CallbackProxy"
           responses:
-            '200':
-              $ref: '#/components/responses/CallbackProxyPayload'
+            "200":
+              $ref: "#/components/responses/CallbackProxyPayload"
           parameters:
-            - $ref: '#/components/parameters/CallbackJWT'
-            - $ref: '#/components/parameters/CallbackProjectID'
-            - $ref: '#/components/parameters/CallbackBotID'
-  
+            - $ref: "#/components/parameters/CallbackJWT"
+            - $ref: "#/components/parameters/CallbackProjectID"
+            - $ref: "#/components/parameters/CallbackBotID"
+
   #
   # Security
   #
-  
+
   securitySchemes:
     http:
-      description: 'Basic HTTP auth: project login and secret'
+      description: "Basic HTTP auth: project login and secret"
       type: http
       scheme: basic
 
@@ -1374,8 +1365,8 @@ security:
   - http: []
 
 servers:
-  - url: '{scheme}://{host}{path}'
-    description: 'API base'
+  - url: "{scheme}://{host}{path}"
+    description: "API base"
     variables:
       scheme:
         description: Scheme
