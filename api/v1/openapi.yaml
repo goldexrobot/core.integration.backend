@@ -6,7 +6,7 @@ info:
     The API is Goldex Robot side API business backend should call to. 
 
     Actual servers are omitted for a security reason.
-  version: "1.1.0"
+  version: "1.2.0"
   contact:
     name: Docs at Github
     url: "https://github.com/goldexrobot/core.integration.backend"
@@ -86,25 +86,6 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/Empty"
-        "default":
-          $ref: "#/components/responses/Error"
-      tags:
-        - bot
-
-  "/bots/{botID}/storage":
-    parameters:
-      - $ref: "#/components/parameters/BotID"
-    get:
-      summary: Storage state
-      description: Returns a state of the storage of the bot.
-      operationId: getBotStorage
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BotStorageState"
         "default":
           $ref: "#/components/responses/Error"
       tags:
@@ -233,8 +214,6 @@ paths:
       callbacks:
         "eval":
           $ref: "#/components/callbacks/EvalCallbacks"
-        "storage":
-          $ref: "#/components/callbacks/StorageCallbacks"
       tags:
         - callback
 
@@ -344,69 +323,6 @@ components:
           example: 13.37
           x-oapi-codegen-extra-tags:
             validate: min=0,max=100
-
-    StorageCell:
-      title: StorageCell
-      description: Cell address
-      type: string
-      minLength: 2
-      maxLength: 4
-      example: A9
-      x-oapi-codegen-extra-tags:
-        validate: required,min=2,max=4,alphanum,uppercase
-
-    StorageOrigin:
-      title: StorageOrigin
-      description: An origin of the change of the storage cell
-      type: string
-      minLength: 1
-      maxLength: 16
-      enum:
-        - ui
-        - collection
-        - dashboard
-      x-oapi-codegen-extra-tags:
-        validate: required,min=1,max=16,oneof=ui collection dashboard
-
-    StorageDomain:
-      title: StorageDomain
-      description: A domain/flow under which a cell is occupied
-      type: string
-      minLength: 1
-      maxLength: 16
-      enum:
-        - buyout
-        - shop
-        - pawnshop
-        - custom
-      x-oapi-codegen-extra-tags:
-        validate: required,min=1,max=16,oneof=buyout shop pawnshop custom
-
-    StorageCellState:
-      title: CellState
-      description: Cell state
-      type: object
-      required:
-        - cell
-        - domain
-        - transaction
-      properties:
-        "cell":
-          $ref: "#/components/schemas/StorageCell"
-        "domain":
-          $ref: "#/components/schemas/StorageDomain"
-        "transaction":
-          $ref: "#/components/schemas/StorageTransaction"
-
-    StorageTransaction:
-      title: StorageTransaction
-      description: Unique ID of the cell state change
-      type: string
-      minLength: 32
-      maxLength: 32
-      example: 240702e1e8be42d39137c1d802dd6941
-      x-oapi-codegen-extra-tags:
-        validate: required,len=32,hexadecimal
 
     EvalStatus:
       title: EvalStatus
@@ -569,8 +485,9 @@ components:
           description: Predefined command name
           enum:
             - unknown
-            - mode_out_of_service
             - mode_operational
+            - mode_out_of_service
+            - mode_collector
             - stop_alarm
             - power_off
           minLength: 1
@@ -578,43 +495,6 @@ components:
           example: mode_operational
           x-oapi-codegen-extra-tags:
             validate: required,min=1,max=32,lowercase
-
-    BotStorageState:
-      title: BotStorageState
-      description: Storage state description
-      type: object
-      required:
-        - occupied_cells
-        - total
-        - available
-      properties:
-        "occupied_cells":
-          description: Occupied cells
-          type: array
-          minItems: 0
-          maxItems: 9999
-          x-oapi-codegen-extra-tags:
-            validate: min=0,max=9999
-          items:
-            $ref: "#/components/schemas/StorageCellState"
-        "total":
-          description: Total available cells (-1 if unknown)
-          type: integer
-          format: int32
-          minimum: -1
-          maximum: 9999
-          example: -1
-          x-oapi-codegen-extra-tags:
-            validate: min=-1,max=9999
-        "available":
-          description: Available/free cells (-1 if unknown)
-          type: integer
-          format: int32
-          minimum: -1
-          maximum: 9999
-          example: -1
-          x-oapi-codegen-extra-tags:
-            validate: min=-1,max=9999
 
     #
     # Evals
@@ -790,10 +670,6 @@ components:
         - eval_photo
         - eval_cancelled
         - eval_finished
-        - storage_occupied
-        - storage_released
-        - storage_can_occupy
-        - storage_can_release
       properties:
         "eval_started":
           description: Evaluation is started
@@ -821,38 +697,6 @@ components:
             validate: omitempty,max=256,url
         "eval_finished":
           description: Evaluation is finished successfully
-          type: string
-          format: uri
-          maxLength: 256
-          example: www.example.com
-          x-oapi-codegen-extra-tags:
-            validate: omitempty,max=256,url
-        "storage_occupied":
-          description: Storage cell is occupied
-          type: string
-          format: uri
-          maxLength: 256
-          example: www.example.com
-          x-oapi-codegen-extra-tags:
-            validate: omitempty,max=256,url
-        "storage_released":
-          description: Storage cell is released
-          type: string
-          format: uri
-          maxLength: 256
-          example: www.example.com
-          x-oapi-codegen-extra-tags:
-            validate: omitempty,max=256,url
-        "storage_can_occupy":
-          description: Pre-occupation cell check
-          type: string
-          format: uri
-          maxLength: 256
-          example: www.example.com
-          x-oapi-codegen-extra-tags:
-            validate: omitempty,max=256,url
-        "storage_can_release":
-          description: Pre-release cell check
           type: string
           format: uri
           maxLength: 256
@@ -959,32 +803,6 @@ components:
       allOf:
         - $ref: "#/components/schemas/BaseEvalCallbackData"
         - $ref: "#/components/schemas/FinishedEvalData"
-
-    StorageCallbackData:
-      title: StorageCallbackData
-      allOf:
-        - $ref: "#/components/schemas/BaseCallbackData"
-        - title: StorageCallbackDataInner
-          type: object
-          required:
-            - cell
-            - origin
-            - domain
-            - transaction
-            - changed_at
-          properties:
-            "cell":
-              $ref: "#/components/schemas/StorageCell"
-            "origin":
-              $ref: "#/components/schemas/StorageOrigin"
-            "domain":
-              $ref: "#/components/schemas/StorageDomain"
-            "transaction":
-              $ref: "#/components/schemas/StorageTransaction"
-            "changed_at":
-              description: Time of the change (RFC 3339)
-              type: string
-              format: date-time
 
   #
   # Parameters
@@ -1167,11 +985,6 @@ components:
         "application/json":
           schema:
             $ref: "#/components/schemas/EvalFinishedCallbackData"
-    CallbackStorageCellEvent:
-      content:
-        "application/json":
-          schema:
-            $ref: "#/components/schemas/StorageCallbackData"
     CallbackProxy:
       content:
         "application/json":
@@ -1258,79 +1071,6 @@ components:
           responses:
             "200":
               $ref: "#/components/responses/CallbackEmpty"
-          parameters:
-            - $ref: "#/components/parameters/CallbackJWT"
-            - $ref: "#/components/parameters/CallbackProjectID"
-            - $ref: "#/components/parameters/CallbackBotID"
-
-    StorageCallbacks:
-      "/storage_occupied":
-        post:
-          summary: Cell has been occupied
-          description: |-
-            Cell is occupied in one of domain/flow: UI flow (like buyout/pawnshop), on-board bot dashboards. 
-
-            Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
-          requestBody:
-            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
-          responses:
-            "200":
-              $ref: "#/components/responses/CallbackEmpty"
-          parameters:
-            - $ref: "#/components/parameters/CallbackJWT"
-            - $ref: "#/components/parameters/CallbackProjectID"
-            - $ref: "#/components/parameters/CallbackBotID"
-
-      "/storage_released":
-        post:
-          summary: Cell has been released
-          description: |-
-            Cell is released in one of domain/flow: UI flow (like shop/pawnshop), on-board bot dashboards. 
-
-            Callback is **asynchronous**: status 200 is expected in a response to the callback, otherwise Goldex will continue to deliver it for the next 3 hours
-          requestBody:
-            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
-          responses:
-            "200":
-              $ref: "#/components/responses/CallbackEmpty"
-          parameters:
-            - $ref: "#/components/parameters/CallbackJWT"
-            - $ref: "#/components/parameters/CallbackProjectID"
-            - $ref: "#/components/parameters/CallbackBotID"
-
-      "/storage_can_occupy":
-        post:
-          summary: Cell is going to be occupied
-          description: |-
-            Before the storage cell gets being occupied with an item (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. 
-
-            Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
-          requestBody:
-            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
-          responses:
-            "200":
-              $ref: "#/components/responses/CallbackAllowance"
-            "default":
-              $ref: "#/components/responses/CallbackFailed"
-          parameters:
-            - $ref: "#/components/parameters/CallbackJWT"
-            - $ref: "#/components/parameters/CallbackProjectID"
-            - $ref: "#/components/parameters/CallbackBotID"
-
-      "/storage_can_release":
-        post:
-          summary: Cell is going to be released
-          description: |-
-            Before the storage cell gets being released (in any domain/flow) this callback is sent, thus it gives a fine control over the storage. 
-
-            Callback is **synchronous**, that mean the business backend should respond correctly with a status 200. Otherwise cell action will be forbidden
-          requestBody:
-            $ref: "#/components/requestBodies/CallbackStorageCellEvent"
-          responses:
-            "200":
-              $ref: "#/components/responses/CallbackAllowance"
-            "default":
-              $ref: "#/components/responses/CallbackFailed"
           parameters:
             - $ref: "#/components/parameters/CallbackJWT"
             - $ref: "#/components/parameters/CallbackProjectID"
