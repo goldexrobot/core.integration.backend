@@ -10,13 +10,13 @@ This document covers backend integration.
 
 ## TL;DR
 
-Goldex vending machine serves UI and communicates with core Goldex backend.
+Goldex vending machine serves UI and communicates with the core Goldex backend.
 
-This core backend exposes API to control the machine from outside.
+This core backend exposes API to control the machine from business side.
 
-The core backend sends optional signed callbacks to the "business" backend to notify about valuable evaluation steps and storage interaction.
+The core backend sends optional signed callbacks to the business backend to notify about a items evaluation steps.
 
-Business backend should implement methods required by the UI and is responsible for the secure data transmission.
+Business backend should implement methods required by the UI flow and is responsible for the secure data transmission.
 
 Check out [Swagger](https://goldexrobot.github.io/core.integration.backend/).
 
@@ -26,10 +26,10 @@ Check out [Swagger](https://goldexrobot.github.io/core.integration.backend/).
 
 ## API
 
-Goldex backend exposes an API to provide some extended information like photos, storage access history etc.
-Moreover the API allows business backend to control a vending machine.
+Goldex core backend exposes an API to provide some extended information like machines available for some specific project, photos available, evaluation history etc.
+Moreover the API allows business backend to control a vending machine (switch operational mode).
 
-Calls to the API must be supplied with basic HTTP auth header. You can get the login/key in the Goldex dashboard.
+Calls to the API must be supplied with a basic HTTP auth header. Contact Goldex support to get the credentials.
 
 See [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
@@ -37,13 +37,9 @@ See [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
 ## Callbacks
 
-Goldex backend sends optional HTTP requests to notify the business backend about a new events or to request some information for the vending terminal in real time.
+Goldex backend sends optional HTTP requests to notify the business backend about new events or to request some information for the machine in real time.
 
 See `POST /callbacks` in [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
-
-For instance: items evaluation, storage interaction, etc.
-
-Exact endpoints to call by Goldex should be defined in a call to the Goldex API. 
 
 The HTTP requests are: **callbacks** and **named proxy endpoints** (see below).
 
@@ -54,73 +50,41 @@ Requests are always of method **POST** and carry **application/json; charset=utf
 | X-CBOT-PROJECT-ID | Origin project ID | "1" |
 | X-CBOT-BOT-ID | Origin bot ID (uint64) | "42" |
 
-All the Goldex requests are signed (see below) and **should be** validated at business backend side.
+All the Goldex requests are signed (see below) and **should be** validated at the business side.
 
-Business backend has to respond with successful HTTP status (200, 201, or 202) to signalize about callback consumption. Until then, Goldex may continue to resend requests.
+Business backend has to respond with the successful HTTP status (200, 201, or 202) to signalize about callback consumption. Until then, Goldex may continue to resend requests.
 
-### Evaluation callbacks
+### Named proxy endpoints
 
-Evaluation related callbacks are optional, but give extra control from business backend side.
+Proxy endpoints are optional named callbacks (name-to-endpoint bindings) and are available at the UI side.
 
-### Storage callbacks
-
-Storage callbacks are sent during the access (UI) to the storage and are preferred to be implemented.
-
-#### Domain/flow
-
-A storage cell could be occupied or released in multiple scenarios. To control the access to the cells and keep a history for audit there are **domains**.
-
-For example, an item is bought from a customer during buyout flow. It's now under *buyout* domain. Then the item is collected from the robot (flow is outside of UI), so it's released under *collection* domain.
-
-Another example. To sell an item it should be first loaded into the robot. In this particular scenario item is loaded using internal robot dashboard (outside of UI), so the loading action (cell occupation) has been made under *dashboard* domain/flow.
-
-Here are predefined domains/flows:
-
-*Domain* is an origin of the cell operation, or in other words a *business flow* in terms of UI. Here how domains and cell events are correlate:
-| Domain/flow | Cell occupation | Cell release | Comment |
-| --- | --- | --- | --- |
-| buyout | YES | | Buyout business flow: a cell can only be **occupied** |
-| shop | | YES | Shop flow: a cell can only be **released** |
-| pawnshop | YES | YES | Pawhshop flow: a cell can be both **occupied/released** |
-| collection/dashboard | YES | YES | Not a UI flow, but a storage management (using internal bot dashboard): a cell can be both **occupied/released** |
-
-Note about a shop flow. First of all, an item should be loaded into the storage of the bot. Then it could appear in the UI as a product we're selling. \
-So the storage is loaded through the internal dashboard of the bot, therefore in this case the cell is loaded under the collection/dashboard domain.
-
-### Named proxy endpoints (UI methods)
-
-Proxy methods are custom named callbacks (name-to-endpoint bindings) and available to be called directly from the UI.
+The purpose of endpoints is to give the UI a secure way to call business backend. For instance, to get an access token.
 
 See `POST /proxy` in [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
-In this case Goldex backend acts as secure proxy between the robot and business backend (initially UI doesn't have an identity (robot ID) and can't be identified by the business backend side).
+In this case Goldex backend acts as a secure proxy between the machine and business backend.
 
 For instance, let's assume business backend have defined an endpoint `auth` pointing to `https://example.com/bot/auth`.
 
-UI now calls `auth` with some payload using internal UI API. Goldex backend adds bot/project IDs to the request, signs it and and sends `POST https://example.com/bot/auth`:
+UI now calls proxy method `auth` using UI API. Goldex signs the request and sends `POST https://example.com/bot/auth`:
 
 ```json
 {
   "project_id": 1,
   "bot_id": 42,
   "payload": {
-    // bot`s request k/v goes here:
-    "my_token": "some JWT token"
+    // optional k/v from the machine side
   }
 }
 ```
 
 Then Goldex backend waits for a response from the business backend (status 200, application/json) and returns the response back to the UI.
 
-For example, business backend can generates a JWT in a response to the request.
-
-Voila! The robot is identified on the business side and got the auth token.
-
 ---
 
-### Callbacks signature
+### Signing
 
-Goldex signs callbacks with JWT. Token is signed with a per-project key (see Goldex dashboard) and is transferred in `Authorization` HTTP header (bearer).
+Goldex signs callbacks with a JWT. Token is signed with a per-project secret and is transferred in `Authorization` HTTP header (bearer).
 
 Business backend **should** validate those callbacks. Developer is fully responsible for the security.
 
