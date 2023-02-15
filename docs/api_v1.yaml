@@ -6,7 +6,7 @@ info:
     The API is Goldex Robot side API business backend should call to. 
 
     Actual servers are omitted for a security reason.
-  version: "1.2.0"
+  version: "1.2.1"
   contact:
     name: Docs at Github
     url: "https://github.com/goldexrobot/core.integration.backend"
@@ -461,6 +461,7 @@ components:
       required:
         - id
         - serial
+        - type
       properties:
         "id":
           $ref: "#/components/schemas/BotID"
@@ -472,6 +473,15 @@ components:
           example: CB-616
           x-oapi-codegen-extra-tags:
             validate: required,min=6,max=9,uppercase
+        "type":
+          $ref: "#/components/schemas/BotType"
+
+    BotType:
+      title: Machine type
+      type: string
+      enum:
+        - bot
+        - vending
 
     BotCommand:
       title: BotCommand
