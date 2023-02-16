@@ -6,7 +6,7 @@ info:
     The API is Goldex Robot side API business backend should call to. 
 
     Actual servers are omitted for a security reason.
-  version: "1.2.1"
+  version: "1.2.2"
   contact:
     name: Docs at Github
     url: "https://github.com/goldexrobot/core.integration.backend"
@@ -505,6 +505,13 @@ components:
           example: mode_operational
           x-oapi-codegen-extra-tags:
             validate: required,min=1,max=32,lowercase
+        "payload":
+          type: string
+          description: Custom payload if applicable
+          maxLength: 1024
+          x-oapi-codegen-extra-tags:
+            validate: max=1024
+
 
     #
     # Evals
