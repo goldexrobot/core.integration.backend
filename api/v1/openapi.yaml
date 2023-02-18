@@ -510,7 +510,7 @@ components:
           description: Custom payload if applicable
           maxLength: 1024
           x-oapi-codegen-extra-tags:
-            validate: max=1024
+            validate: omitempty,max=1024
 
 
     #
