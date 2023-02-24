@@ -6,7 +6,7 @@ info:
     The API is Goldex Robot side API business backend should call to. 
 
     Actual servers are omitted for a security reason.
-  version: "1.2.2"
+  version: "1.2.4"
   contact:
     name: Docs at Github
     url: "https://github.com/goldexrobot/core.integration.backend"
@@ -86,6 +86,58 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/Empty"
+        "default":
+          $ref: "#/components/responses/Error"
+      tags:
+        - bot
+
+  "/bots/{botID}/evals":
+    parameters:
+      - $ref: "#/components/parameters/BotID"
+      - from:
+        name: from
+        in: query
+        description: Evaluation ID to start from (inclusive)
+        required: false
+        schema:
+          type: integer
+          format: uint64
+          example: 1
+          minimum: 1
+          x-oapi-codegen-extra-tags:
+            validate: omitempty,min=1
+        x-go-name: BotEvalsStartFrom
+      - limit:
+        name: limit
+        in: query
+        description: Output limit
+        required: false
+        schema:
+          type: integer
+          format: uint64
+          example: 1000
+          minimum: 1
+          maximum: 1000
+          x-oapi-codegen-extra-tags:
+            validate: omitempty,min=1,max=1000
+        x-go-name: BotEvalsLimit
+    get:
+      summary: Evaluation IDs
+      description: |-
+        Get a list of evaluations performed on the specified machine.
+
+        Output is limited, so use query params to get the following list of IDs.
+      operationId: getBotEvals
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                maxLength: 1000
+                items:
+                  $ref: "#/components/schemas/EvalID"
         "default":
           $ref: "#/components/responses/Error"
       tags:
