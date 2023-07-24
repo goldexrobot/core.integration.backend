@@ -3,25 +3,23 @@ openapi: 3.0.0
 info:
   title: Goldex Robot API
   description: |-
-    The API is Goldex Robot side API business backend should call to. 
-
-    Actual servers are omitted for a security reason.
-  version: "1.2.4"
+    The API is the Goldex Robot side API business backend should call to.
+  version: "1.2.5"
   contact:
     name: Docs at Github
     url: "https://github.com/goldexrobot/core.integration.backend"
 
 tags:
   - name: bot
-    description: Bots state and control
+    description: Machine state and control
   - name: eval
-    description: Evaluation data
+    description: Items evaluation
   - name: file
     description: Files downloading
   - name: price
     description: Metal prices
   - name: callback
-    description: Business backend callbacks and named proxy endpoints
+    description: Business backend callbacks
 
 paths:
   #
@@ -30,11 +28,11 @@ paths:
 
   "/bots":
     get:
-      summary: Available bots
+      summary: Available machines
       description: |
-        Returns a list of bots **currently** available for the current project/integration.
+        Returns a list of machines **currently** available within a project.
 
-        The list is not fixed as a bot can be moved to another project.
+        The list is not fixed as a machine can be moved to/from the project.
       operationId: getBots
       responses:
         "200":
@@ -54,8 +52,8 @@ paths:
     parameters:
       - $ref: "#/components/parameters/BotID"
     get:
-      summary: Bot info
-      description: Describes a bot by ID.
+      summary: Machine info
+      description: Describes a machine by its ID.
       operationId: getBot
       responses:
         "200":
@@ -74,7 +72,7 @@ paths:
       - $ref: "#/components/parameters/BotID"
     post:
       summary: Send a command
-      description: Sends a predefined command to the bot. This allows a manager to control the bot remotely.
+      description: Sends a predefined command to the machine. This allows a manager to control the machine remotely.
       operationId: sendBotCommand
       requestBody:
         description: Command to perform
@@ -126,7 +124,7 @@ paths:
       description: |-
         Get a list of evaluations performed on the specified machine.
 
-        Output is limited, so use query params to get the following list of IDs.
+        Output is limited, so use query params to page through the list.
       operationId: getBotEvals
       responses:
         "200":
@@ -152,7 +150,7 @@ paths:
       - $ref: "#/components/parameters/EvalID"
     get:
       summary: Evaluation state
-      description: Retrieves evaluation data specified by ID.
+      description: Retrieves evaluation state and data specified by ID.
       operationId: getEval
       responses:
         "200":
@@ -187,6 +185,25 @@ paths:
       tags:
         - eval
 
+  "/evals/{evalID}/raw":
+    parameters:
+      - $ref: "#/components/parameters/EvalID"
+    get:
+      summary: Evaluation raw data
+      description: Returns raw (hardware) data of the evaluation specified by ID.
+      operationId: getEvalRaw
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvalDataRaw"
+        "default":
+          $ref: "#/components/responses/Error"
+      tags:
+        - eval
+
   #
   # Files
   #
@@ -196,7 +213,7 @@ paths:
       - $ref: "#/components/parameters/PhotoID"
     get:
       summary: Photo content
-      description: Returns a content of the photo specified by ID.
+      description: Returns a content of the photo image specified by ID.
       operationId: getPhotoFile
       responses:
         "200":
@@ -226,7 +243,10 @@ paths:
           $ref: "#/components/schemas/Alloy"
     get:
       summary: London Metal Exchange
-      description: Returns current metal price **per gram** trading at [London Metal Exchange](https://www.lme.com/).
+      description: |
+        Returns current metal price **per gram** trading at [London Metal Exchange](https://www.lme.com/).
+
+        Prices are updated every 60 minutes. Update period may change.
       operationId: getPriceLME
       responses:
         "200":
@@ -248,8 +268,16 @@ paths:
 
   "/callbacks":
     post:
+      deprecated: true
       summary: Set callbacks
-      description: Sets callback endpoints to listen to events on business backend side. <br>Send an empty object to clear callbacks.<br><br>Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). Query part of the endpoint URL will be dropped.
+      description: |
+        Sets callback endpoints to listen to events on business backend side. 
+
+        Send an empty object to clear callbacks.
+
+        Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). 
+
+        Query part of the endpoint URL will be dropped.
       operationId: setCallbacks
       requestBody:
         description: Callbacks mapping (or an empty list)
@@ -271,8 +299,18 @@ paths:
 
   "/proxy":
     post:
+      deprecated: true
       summary: Set proxy endpoints for UI
-      description: "Sets a list of named endpoints for UI. The UI will make requests by name and Goldex will proxy these requests to the business backend endpoints. <br>Send an empty object to clear the list.<br><br>Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). Query part of the endpoint URL will be dropped."
+      description: |
+        Sets a list of named endpoints for UI. 
+
+        Special `proxy` requests made by UI will be proxied by Goldex to the business backend endpoints. 
+
+        Send an empty object to clear the list.
+
+        Endpoint path can contain `PROJECT_ID` and `BOT_ID` inclusions (case sensitive). 
+
+        Query part of the endpoint URL will be dropped.
       operationId: setProxyEndpoints
       requestBody:
         description: Endpoints mapping (or an empty list)
@@ -307,7 +345,7 @@ components:
 
     BotID:
       title: BotID
-      description: Bot ID
+      description: Machine ID
       type: integer
       format: uint64
       example: 42
@@ -508,7 +546,7 @@ components:
 
     BotInfo:
       title: BotInfo
-      description: Bot info data
+      description: Machine info
       type: object
       required:
         - id
@@ -537,7 +575,7 @@ components:
 
     BotCommand:
       title: BotCommand
-      description: Command to send to the bot
+      description: Command to send to the machine
       type: object
       required:
         - name
@@ -564,9 +602,8 @@ components:
           x-oapi-codegen-extra-tags:
             validate: omitempty,max=1024
 
-
     #
-    # Evals
+    # Evaluation
     #
 
     EvalPhoto:
@@ -697,6 +734,155 @@ components:
           $ref: "#/components/schemas/EvalStatus"
       discriminator:
         propertyName: status
+
+    EvalDataRaw:
+      title: EvalDataRaw
+      description: Evaluation raw data
+      type: object
+      required:
+        - bot_id
+        - started_at
+        - updated_at
+      properties:
+        "bot_id":
+          $ref: "#/components/schemas/BotID"
+        "spectrum":
+          $ref: "#/components/schemas/EvalDataRawSpectrum"
+        "weight":
+          $ref: "#/components/schemas/EvalDataRawWeight"
+        "hydro":
+          $ref: "#/components/schemas/EvalDataRawHydro"
+        "result":
+          $ref: "#/components/schemas/EvalDataRawResult"
+        "started_at":
+          description: Time of start (RFC 3339)
+          type: string
+          format: date-time
+        "updated_at":
+          description: Time of last update (RFC 3339)
+          type: string
+          format: date-time
+
+    EvalDataRawSpectrum:
+      title: EvalDataRawSpectrum
+      type: object
+      required:
+        - spectrum
+        - alloy
+        - alloy_content
+        - fineness
+      properties:
+        "spectrum":
+          description: Spectrum data
+          type: array
+          items:
+            $ref: "#/components/schemas/SpectrumItem"
+        "alloy":
+          $ref: "#/components/schemas/Alloy"
+        "alloy_content":
+          description: Content of the target metal in spectrum, percents
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          example: 99.98
+          x-oapi-codegen-extra-tags:
+            validate: min=0,max=100
+        "fineness":
+          description: Spectral fineness. Example, 585 stands for 58.5%, 999 for 99.9%, 9999 for 99.99%
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 9999
+          example: 585
+          x-oapi-codegen-extra-tags:
+            validate: min=100,max=9999
+
+    EvalDataRawWeight:
+      title: EvalDataRawWeight
+      type: object
+      required:
+        - weight
+      properties:
+        "weight":
+          description: Item weight in air, grams
+          type: number
+          format: double
+          minimum: 0.001
+          example: 3.141
+          x-oapi-codegen-extra-tags:
+            validate: required,min=0.001
+      
+    EvalDataRawHydro:
+      title: EvalDataRawHydro
+      type: object
+      required:
+        - weight
+        - density
+        - fineness
+      properties:
+        "weight":
+          description: Item weight in water, grams
+          type: number
+          format: double
+          minimum: 0.001
+          example: 3.141
+          x-oapi-codegen-extra-tags:
+            validate: required,min=0.001
+        "density":
+          description: Calculated item density, grams per cubic centimeter
+          type: number
+          format: double
+          minimum: 0.001
+          example: 3.141
+          x-oapi-codegen-extra-tags:
+            validate: required,min=0.001
+        "fineness":
+          description: Hydrostatic fineness. Example, 585 stands for 58.5%, 999 for 99.9%, 9999 for 99.99%
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 9999
+          example: 585
+          x-oapi-codegen-extra-tags:
+            validate: min=100,max=9999
+        
+    EvalDataRawResult:
+      title: EvalDataRawResult
+      type: object
+      required:
+        - fineness
+        - confidence
+        - risky
+        - warnings
+      properties:
+        "fineness":
+          description: Resulting fineness. Example, 585 stands for 58.5%, 999 for 99.9%, 9999 for 99.99%
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 9999
+          example: 585
+          x-oapi-codegen-extra-tags:
+            validate: min=100,max=9999
+        "confidence":
+          description: Overall confidence/score [0..1], where 1 - is fully confident result and a value below 0.8 is alarming
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1
+          example: 0.889
+          x-oapi-codegen-extra-tags:
+            validate: min=0,max=1
+        "risky":
+          description: Goldex decision about the evaluation
+          type: boolean
+          example: true
+        "warnings":
+          description: Warnings that should help with the decision. Usually it is risky to accept the item if a warning is presented
+          type: array
+          items:
+            $ref: "#/components/schemas/EvalWarning"
 
     #
     # Prices
@@ -881,7 +1067,7 @@ components:
     BotID:
       name: "botID"
       in: path
-      description: Bot ID
+      description: Machine ID
       required: true
       schema:
         type: integer
@@ -931,7 +1117,7 @@ components:
       example: "Bearer {jwt.goes.here}"
 
     CallbackBotID:
-      description: Bot ID
+      description: Machine ID
       name: "X-CBOT-BOT-ID"
       in: header
       required: true
@@ -1079,6 +1265,7 @@ components:
     EvalCallbacks:
       "/eval_started":
         post:
+          deprecated: true
           summary: Evaluation is started
           description: |-
             Callback will be sent just before the UI will get acknowledgment of evaluation successful start. 
@@ -1096,6 +1283,7 @@ components:
 
       "/eval_photo":
         post:
+          deprecated: true
           summary: New photo is available
           description: |-
             Callback will be sent once a new photo of evaluating item is received from a robot. 
@@ -1113,6 +1301,7 @@ components:
 
       "/eval_cancelled":
         post:
+          deprecated: true
           summary: Evaluation is cancelled or rejected
           description: |-
             Callback will be sent on the next events: customer has interrupted the evaluation process, Goldex has rejected the item, some hardware has failed. 
@@ -1130,6 +1319,7 @@ components:
 
       "/eval_finished":
         post:
+          deprecated: true
           summary: Evaluation is successfully finished
           description: |-
             Callback is sent when all the evaluation measurements are done and the control is passed to the business backend. 
@@ -1148,6 +1338,7 @@ components:
     ProxyCallbacks:
       "/{endpoint}":
         post:
+          deprecated: true
           summary: Named UI endpoints
           description: Named UI endpoint to proxy via Goldex to the business backend side
           requestBody:
@@ -1188,4 +1379,4 @@ servers:
         default: play.custodybot.com
       path:
         description: Path
-        default: /api/v1
+        default: /emu/goldex/v1

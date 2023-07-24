@@ -1,6 +1,6 @@
 # Goldex Robot: Integration
 
-Goldex Robot is a vending machine that evaluates gold/silver valuables, sells coins and has internal storage/safebox.
+Goldex Robot is a vending machine that evaluates gold/silver valuables, sells coins and has an internal items storage.
 
 Integration with Goldex consists of two major parts: backend integration and [UI](https://github.com/goldexrobot/core.integration.ui) integration.
 
@@ -12,11 +12,7 @@ This document covers backend integration.
 
 Goldex vending machine serves UI and communicates with the core Goldex backend.
 
-This core backend exposes API to control the machine from business side.
-
-The core backend sends optional signed callbacks to the business backend to notify about a items evaluation steps.
-
-Business backend should implement methods required by the UI flow and is responsible for the secure data transmission.
+This core backend exposes an API to control the machine from a business side.
 
 Check out [Swagger](https://goldexrobot.github.io/core.integration.backend/).
 
@@ -27,6 +23,7 @@ Check out [Swagger](https://goldexrobot.github.io/core.integration.backend/).
 ## API
 
 Goldex core backend exposes an API to provide some extended information like machines available for some specific project, photos available, evaluation history etc.
+
 Moreover the API allows business backend to control a vending machine (switch operational mode).
 
 Calls to the API must be supplied with a basic HTTP auth header. Contact Goldex support to get the credentials.
@@ -35,9 +32,9 @@ See [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
 ---
 
-## Callbacks
+## Callbacks (deprecated)
 
-Goldex backend sends optional HTTP requests to notify the business backend about new events or to request some information for the machine in real time.
+Goldex backend sends optional HTTP requests to notify the business backend about new events or to request some information from the machine in a real time.
 
 See `POST /callbacks` in [Swagger](https://goldexrobot.github.io/core.integration.backend/#api-v1).
 
