@@ -741,6 +741,10 @@ components:
       type: object
       required:
         - bot_id
+        - spectrum
+        - weight
+        - hydro
+        - result
         - started_at
         - updated_at
       properties:
