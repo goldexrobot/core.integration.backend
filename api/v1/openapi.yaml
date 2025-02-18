@@ -4,7 +4,7 @@ info:
   title: Goldex Robot API
   description: |-
     The API is the Goldex Robot side API business backend should call to.
-  version: "1.2.5"
+  version: "1.2.6"
   contact:
     name: Docs at Github
     url: "https://github.com/goldexrobot/core.integration.backend"
@@ -242,6 +242,7 @@ paths:
         schema:
           $ref: "#/components/schemas/Alloy"
     get:
+      deprecated: true
       summary: London Metal Exchange
       description: |
         Returns current metal price **per gram** trading at [London Metal Exchange](https://www.lme.com/).
