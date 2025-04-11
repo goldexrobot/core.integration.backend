@@ -703,11 +703,17 @@ components:
       required:
         - status
         - reason
+        - reason_code
       properties:
         "status":
           $ref: "#/components/schemas/EvalStatus"
         "reason":
           $ref: "#/components/schemas/EvalRejection"
+        "reason_code":
+          description: Optional reason code
+          type: string
+          max_length: 32
+          example: "not_enough_gold"
       discriminator:
         propertyName: status
 
