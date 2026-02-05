@@ -4,7 +4,7 @@ info:
   title: Goldex Robot API
   description: |-
     The API is the Goldex Robot side API business backend should call to.
-  version: "1.2.7"
+  version: "1.2.9"
   contact:
     name: Github
     url: "https://github.com/goldexrobot/core.integration.backend"
