@@ -25,4 +25,3 @@ Goldex core backend exposes an API to provide some extended information like mac
 Moreover the API allows business backend to control a vending machine (switch operational mode).
 
 Calls to the API must be supplied with a basic HTTP auth header. Contact Goldex support to get the credentials.
-

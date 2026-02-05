@@ -4,9 +4,9 @@ info:
   title: Goldex Robot API
   description: |-
     The API is the Goldex Robot side API business backend should call to.
-  version: "1.2.6"
+  version: "1.2.7"
   contact:
-    name: Docs at Github
+    name: Github
     url: "https://github.com/goldexrobot/core.integration.backend"
 
 tags:
@@ -30,10 +30,38 @@ paths:
     get:
       summary: Available machines
       description: |
-        Returns a list of machines **currently** available within a project.
+        Get a list of machines **currently** available for the caller project.
 
-        The list is not fixed as a machine can be moved to/from the project.
+        The list is not static as a machine can be moved to/from the project.
       operationId: getBots
+      parameters:
+        - name: from
+          in: query
+          description: ID to start from (inclusive)
+          required: false
+          schema:
+            type: integer
+            format: uint64
+            example: 1
+            minimum: 1
+            default: 1
+            x-oapi-codegen-extra-tags:
+              validate: omitempty,min=1
+          x-go-name: BotsStartFrom
+        - name: limit
+          in: query
+          description: Output limit
+          required: false
+          schema:
+            type: integer
+            format: uint64
+            minimum: 1
+            maximum: 100
+            default: 100
+            example: 100
+            x-oapi-codegen-extra-tags:
+              validate: omitempty,min=1,max=1000
+          x-go-name: BotsLimit
       responses:
         "200":
           description: Success
@@ -53,7 +81,7 @@ paths:
       - $ref: "#/components/parameters/BotID"
     get:
       summary: Machine info
-      description: Describes a machine by its ID.
+      description: Describe a machine by its ID.
       operationId: getBot
       responses:
         "200":
@@ -72,7 +100,12 @@ paths:
       - $ref: "#/components/parameters/BotID"
     post:
       summary: Send a command
-      description: Sends a predefined command to the machine. This allows a manager to control the machine remotely.
+      description: |
+        Send a predefined command to the machine. 
+
+        This allows controlling the machine remotely.
+
+        For `mode_collector` command the payload MUST contain a random 4-digit code to access the collector UI.
       operationId: sendBotCommand
       requestBody:
         description: Command to perform
@@ -90,42 +123,41 @@ paths:
         - bot
 
   "/bots/{botID}/evals":
-    parameters:
-      - $ref: "#/components/parameters/BotID"
-      - from:
-        name: from
-        in: query
-        description: Evaluation ID to start from (inclusive)
-        required: false
-        schema:
-          type: integer
-          format: uint64
-          example: 1
-          minimum: 1
-          x-oapi-codegen-extra-tags:
-            validate: omitempty,min=1
-        x-go-name: BotEvalsStartFrom
-      - limit:
-        name: limit
-        in: query
-        description: Output limit
-        required: false
-        schema:
-          type: integer
-          format: uint64
-          example: 1000
-          minimum: 1
-          maximum: 1000
-          x-oapi-codegen-extra-tags:
-            validate: omitempty,min=1,max=1000
-        x-go-name: BotEvalsLimit
     get:
       summary: Evaluation IDs
       description: |-
-        Get a list of evaluations performed on the specified machine.
+        Get a list of evaluation IDs performed on the specified machine.
 
-        Output is limited, so use query params to page through the list.
+        Output is limited. Use query params for paging.
       operationId: getBotEvals
+      parameters:
+        - $ref: "#/components/parameters/BotID"
+        - name: from
+          in: query
+          description: ID to start from (inclusive)
+          required: false
+          schema:
+            type: integer
+            format: uint64
+            example: 1
+            minimum: 1
+            x-oapi-codegen-extra-tags:
+              validate: omitempty,min=1
+          x-go-name: BotEvalsStartFrom
+        - name: limit
+          in: query
+          description: Output limit
+          required: false
+          schema:
+            type: integer
+            format: uint64
+            minimum: 1
+            maximum: 1000
+            default: 1000
+            example: 1000
+            x-oapi-codegen-extra-tags:
+              validate: omitempty,min=1,max=1000
+          x-go-name: BotEvalsLimit
       responses:
         "200":
           description: Success
@@ -150,7 +182,7 @@ paths:
       - $ref: "#/components/parameters/EvalID"
     get:
       summary: Evaluation state
-      description: Retrieves evaluation state and data specified by ID.
+      description: Get evaluation state and data specified by ID.
       operationId: getEval
       responses:
         "200":
@@ -169,7 +201,10 @@ paths:
       - $ref: "#/components/parameters/EvalID"
     get:
       summary: Evaluation photos
-      description: Returns a list of photo IDs belong to the evaluation.
+      description: |
+        Get a list of photo IDs belong to the evaluation.
+
+        Note: `preview_id` field is deprecated and contains the same value as `id` field.
       operationId: getEvalPhotos
       responses:
         "200":
@@ -190,7 +225,7 @@ paths:
       - $ref: "#/components/parameters/EvalID"
     get:
       summary: Evaluation raw data
-      description: Returns raw (hardware) data of the evaluation specified by ID.
+      description: Get raw evaluation data specified by ID.
       operationId: getEvalRaw
       responses:
         "200":
@@ -213,7 +248,7 @@ paths:
       - $ref: "#/components/parameters/PhotoID"
     get:
       summary: Photo content
-      description: Returns a content of the photo image specified by ID.
+      description: Retrieve content of the photo specified by ID.
       operationId: getPhotoFile
       responses:
         "200":
@@ -712,7 +747,7 @@ components:
         "reason_code":
           description: Optional reason code
           type: string
-          max_length: 32
+          maxLength: 32
           example: "not_enough_gold"
       discriminator:
         propertyName: status
@@ -822,7 +857,7 @@ components:
           example: 3.141
           x-oapi-codegen-extra-tags:
             validate: required,min=0.001
-      
+
     EvalDataRawHydro:
       title: EvalDataRawHydro
       type: object
@@ -856,7 +891,7 @@ components:
           example: 585
           x-oapi-codegen-extra-tags:
             validate: min=100,max=9999
-        
+
     EvalDataRawResult:
       title: EvalDataRawResult
       type: object
@@ -1386,7 +1421,7 @@ servers:
         default: https
       host:
         description: Host and port
-        default: play.custodybot.com
+        default: custodybot.com
       path:
         description: Path
-        default: /emu/goldex/v1
+        default: /v1
